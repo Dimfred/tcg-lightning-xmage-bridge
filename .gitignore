@@ -1,0 +1,109 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# GENERAL
+**/build/*
+**/*.log
+
+# EDITOR
+.VSCodeCounter
+.idea
+.nvim
+.vimspector.json
+**/clangd
+**/compile_commands.json
+
+# PYTHON
+**/__pycache__
+**/**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache
+.hypothesis
+**/try.py
+**/celerybeat-schedule
+dist/
+out/
+wheels/
+**/*.ju.py
+**/.ipynb_checkpoints/
+**/.mypy_cache
+venv/
+.venv/
+**/*.whl
+
+# AI
+lightning_logs/
+runs/
+.aider*
+**/*.onnx
+**/*.pt
+**/*.pkl
+**/*.npy
+
+# NODE JS TS
+**/node_modules
+out/
+dist/
+
+# Editor temporaries
+*.swn
+*.swo
+*.swp
+*~
+
+# CPP
+.cache
+**/.ccls-cache
+doxygen
+compile-commands.json
+CMakeCache.txt
+CMakeFiles
+**/*.dll
+
+# SOLIDITY
+**/cache
+**/artifacts
+**/*coverage*
+**/@openzeppelin/*
+**/gasReporterOutput.json
+
+# DB
+**/*.db
+
+# SUBMODULES
+
+
