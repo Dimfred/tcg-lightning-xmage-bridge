@@ -5,9 +5,261 @@
 // source: common.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 
-export const protobufPackage = "xmage";
+export const protobufPackage = 'xmage';
+
+export enum MatchTimeLimit {
+  MATCH_TIME_NONE = 0,
+  MATCH_TIME_MIN_5 = 1,
+  MATCH_TIME_MIN_10 = 2,
+  MATCH_TIME_MIN_15 = 3,
+  MATCH_TIME_MIN_20 = 4,
+  MATCH_TIME_MIN_25 = 5,
+  MATCH_TIME_MIN_30 = 6,
+  MATCH_TIME_MIN_35 = 7,
+  MATCH_TIME_MIN_40 = 8,
+  MATCH_TIME_MIN_45 = 9,
+  MATCH_TIME_MIN_50 = 10,
+  MATCH_TIME_MIN_55 = 11,
+  MATCH_TIME_MIN_60 = 12,
+  MATCH_TIME_MIN_90 = 13,
+  MATCH_TIME_MIN_120 = 14,
+  UNRECOGNIZED = -1,
+}
+
+export function matchTimeLimitFromJSON(object: any): MatchTimeLimit {
+  switch (object) {
+    case 0:
+    case 'MATCH_TIME_NONE':
+      return MatchTimeLimit.MATCH_TIME_NONE;
+    case 1:
+    case 'MATCH_TIME_MIN_5':
+      return MatchTimeLimit.MATCH_TIME_MIN_5;
+    case 2:
+    case 'MATCH_TIME_MIN_10':
+      return MatchTimeLimit.MATCH_TIME_MIN_10;
+    case 3:
+    case 'MATCH_TIME_MIN_15':
+      return MatchTimeLimit.MATCH_TIME_MIN_15;
+    case 4:
+    case 'MATCH_TIME_MIN_20':
+      return MatchTimeLimit.MATCH_TIME_MIN_20;
+    case 5:
+    case 'MATCH_TIME_MIN_25':
+      return MatchTimeLimit.MATCH_TIME_MIN_25;
+    case 6:
+    case 'MATCH_TIME_MIN_30':
+      return MatchTimeLimit.MATCH_TIME_MIN_30;
+    case 7:
+    case 'MATCH_TIME_MIN_35':
+      return MatchTimeLimit.MATCH_TIME_MIN_35;
+    case 8:
+    case 'MATCH_TIME_MIN_40':
+      return MatchTimeLimit.MATCH_TIME_MIN_40;
+    case 9:
+    case 'MATCH_TIME_MIN_45':
+      return MatchTimeLimit.MATCH_TIME_MIN_45;
+    case 10:
+    case 'MATCH_TIME_MIN_50':
+      return MatchTimeLimit.MATCH_TIME_MIN_50;
+    case 11:
+    case 'MATCH_TIME_MIN_55':
+      return MatchTimeLimit.MATCH_TIME_MIN_55;
+    case 12:
+    case 'MATCH_TIME_MIN_60':
+      return MatchTimeLimit.MATCH_TIME_MIN_60;
+    case 13:
+    case 'MATCH_TIME_MIN_90':
+      return MatchTimeLimit.MATCH_TIME_MIN_90;
+    case 14:
+    case 'MATCH_TIME_MIN_120':
+      return MatchTimeLimit.MATCH_TIME_MIN_120;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return MatchTimeLimit.UNRECOGNIZED;
+  }
+}
+
+export function matchTimeLimitToJSON(object: MatchTimeLimit): string {
+  switch (object) {
+    case MatchTimeLimit.MATCH_TIME_NONE:
+      return 'MATCH_TIME_NONE';
+    case MatchTimeLimit.MATCH_TIME_MIN_5:
+      return 'MATCH_TIME_MIN_5';
+    case MatchTimeLimit.MATCH_TIME_MIN_10:
+      return 'MATCH_TIME_MIN_10';
+    case MatchTimeLimit.MATCH_TIME_MIN_15:
+      return 'MATCH_TIME_MIN_15';
+    case MatchTimeLimit.MATCH_TIME_MIN_20:
+      return 'MATCH_TIME_MIN_20';
+    case MatchTimeLimit.MATCH_TIME_MIN_25:
+      return 'MATCH_TIME_MIN_25';
+    case MatchTimeLimit.MATCH_TIME_MIN_30:
+      return 'MATCH_TIME_MIN_30';
+    case MatchTimeLimit.MATCH_TIME_MIN_35:
+      return 'MATCH_TIME_MIN_35';
+    case MatchTimeLimit.MATCH_TIME_MIN_40:
+      return 'MATCH_TIME_MIN_40';
+    case MatchTimeLimit.MATCH_TIME_MIN_45:
+      return 'MATCH_TIME_MIN_45';
+    case MatchTimeLimit.MATCH_TIME_MIN_50:
+      return 'MATCH_TIME_MIN_50';
+    case MatchTimeLimit.MATCH_TIME_MIN_55:
+      return 'MATCH_TIME_MIN_55';
+    case MatchTimeLimit.MATCH_TIME_MIN_60:
+      return 'MATCH_TIME_MIN_60';
+    case MatchTimeLimit.MATCH_TIME_MIN_90:
+      return 'MATCH_TIME_MIN_90';
+    case MatchTimeLimit.MATCH_TIME_MIN_120:
+      return 'MATCH_TIME_MIN_120';
+    case MatchTimeLimit.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum MulliganType {
+  MULLIGAN_GAME_DEFAULT = 0,
+  MULLIGAN_VANCOUVER = 1,
+  MULLIGAN_PARIS = 2,
+  MULLIGAN_LONDON = 3,
+  MULLIGAN_SMOOTHED_LONDON = 4,
+  MULLIGAN_CANADIAN_HIGHLANDER = 5,
+  UNRECOGNIZED = -1,
+}
+
+export function mulliganTypeFromJSON(object: any): MulliganType {
+  switch (object) {
+    case 0:
+    case 'MULLIGAN_GAME_DEFAULT':
+      return MulliganType.MULLIGAN_GAME_DEFAULT;
+    case 1:
+    case 'MULLIGAN_VANCOUVER':
+      return MulliganType.MULLIGAN_VANCOUVER;
+    case 2:
+    case 'MULLIGAN_PARIS':
+      return MulliganType.MULLIGAN_PARIS;
+    case 3:
+    case 'MULLIGAN_LONDON':
+      return MulliganType.MULLIGAN_LONDON;
+    case 4:
+    case 'MULLIGAN_SMOOTHED_LONDON':
+      return MulliganType.MULLIGAN_SMOOTHED_LONDON;
+    case 5:
+    case 'MULLIGAN_CANADIAN_HIGHLANDER':
+      return MulliganType.MULLIGAN_CANADIAN_HIGHLANDER;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return MulliganType.UNRECOGNIZED;
+  }
+}
+
+export function mulliganTypeToJSON(object: MulliganType): string {
+  switch (object) {
+    case MulliganType.MULLIGAN_GAME_DEFAULT:
+      return 'MULLIGAN_GAME_DEFAULT';
+    case MulliganType.MULLIGAN_VANCOUVER:
+      return 'MULLIGAN_VANCOUVER';
+    case MulliganType.MULLIGAN_PARIS:
+      return 'MULLIGAN_PARIS';
+    case MulliganType.MULLIGAN_LONDON:
+      return 'MULLIGAN_LONDON';
+    case MulliganType.MULLIGAN_SMOOTHED_LONDON:
+      return 'MULLIGAN_SMOOTHED_LONDON';
+    case MulliganType.MULLIGAN_CANADIAN_HIGHLANDER:
+      return 'MULLIGAN_CANADIAN_HIGHLANDER';
+    case MulliganType.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum SkillLevel {
+  SKILL_BEGINNER = 0,
+  SKILL_CASUAL = 1,
+  SKILL_SERIOUS = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function skillLevelFromJSON(object: any): SkillLevel {
+  switch (object) {
+    case 0:
+    case 'SKILL_BEGINNER':
+      return SkillLevel.SKILL_BEGINNER;
+    case 1:
+    case 'SKILL_CASUAL':
+      return SkillLevel.SKILL_CASUAL;
+    case 2:
+    case 'SKILL_SERIOUS':
+      return SkillLevel.SKILL_SERIOUS;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return SkillLevel.UNRECOGNIZED;
+  }
+}
+
+export function skillLevelToJSON(object: SkillLevel): string {
+  switch (object) {
+    case SkillLevel.SKILL_BEGINNER:
+      return 'SKILL_BEGINNER';
+    case SkillLevel.SKILL_CASUAL:
+      return 'SKILL_CASUAL';
+    case SkillLevel.SKILL_SERIOUS:
+      return 'SKILL_SERIOUS';
+    case SkillLevel.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum PlayerType {
+  PLAYER_HUMAN = 0,
+  PLAYER_COMPUTER_DRAFT_BOT = 1,
+  PLAYER_COMPUTER_MONTE_CARLO = 2,
+  PLAYER_COMPUTER_MAD = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function playerTypeFromJSON(object: any): PlayerType {
+  switch (object) {
+    case 0:
+    case 'PLAYER_HUMAN':
+      return PlayerType.PLAYER_HUMAN;
+    case 1:
+    case 'PLAYER_COMPUTER_DRAFT_BOT':
+      return PlayerType.PLAYER_COMPUTER_DRAFT_BOT;
+    case 2:
+    case 'PLAYER_COMPUTER_MONTE_CARLO':
+      return PlayerType.PLAYER_COMPUTER_MONTE_CARLO;
+    case 3:
+    case 'PLAYER_COMPUTER_MAD':
+      return PlayerType.PLAYER_COMPUTER_MAD;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return PlayerType.UNRECOGNIZED;
+  }
+}
+
+export function playerTypeToJSON(object: PlayerType): string {
+  switch (object) {
+    case PlayerType.PLAYER_HUMAN:
+      return 'PLAYER_HUMAN';
+    case PlayerType.PLAYER_COMPUTER_DRAFT_BOT:
+      return 'PLAYER_COMPUTER_DRAFT_BOT';
+    case PlayerType.PLAYER_COMPUTER_MONTE_CARLO:
+      return 'PLAYER_COMPUTER_MONTE_CARLO';
+    case PlayerType.PLAYER_COMPUTER_MAD:
+      return 'PLAYER_COMPUTER_MAD';
+    case PlayerType.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
 
 export interface WsMessage {
   type: string;
@@ -19,12 +271,12 @@ export interface ErrorResponse {
 }
 
 function createBaseWsMessage(): WsMessage {
-  return { type: "", payload: new Uint8Array(0) };
+  return { type: '', payload: new Uint8Array(0) };
 }
 
 export const WsMessage: MessageFns<WsMessage> = {
   encode(message: WsMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.type !== "") {
+    if (message.type !== '') {
       writer.uint32(10).string(message.type);
     }
     if (message.payload.length !== 0) {
@@ -67,14 +319,14 @@ export const WsMessage: MessageFns<WsMessage> = {
 
   fromJSON(object: any): WsMessage {
     return {
-      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      type: isSet(object.type) ? globalThis.String(object.type) : '',
       payload: isSet(object.payload) ? bytesFromBase64(object.payload) : new Uint8Array(0),
     };
   },
 
   toJSON(message: WsMessage): unknown {
     const obj: any = {};
-    if (message.type !== "") {
+    if (message.type !== '') {
       obj.type = message.type;
     }
     if (message.payload.length !== 0) {
@@ -88,19 +340,19 @@ export const WsMessage: MessageFns<WsMessage> = {
   },
   fromPartial<I extends Exact<DeepPartial<WsMessage>, I>>(object: I): WsMessage {
     const message = createBaseWsMessage();
-    message.type = object.type ?? "";
+    message.type = object.type ?? '';
     message.payload = object.payload ?? new Uint8Array(0);
     return message;
   },
 };
 
 function createBaseErrorResponse(): ErrorResponse {
-  return { message: "" };
+  return { message: '' };
 }
 
 export const ErrorResponse: MessageFns<ErrorResponse> = {
   encode(message: ErrorResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.message !== "") {
+    if (message.message !== '') {
       writer.uint32(10).string(message.message);
     }
     return writer;
@@ -131,12 +383,12 @@ export const ErrorResponse: MessageFns<ErrorResponse> = {
   },
 
   fromJSON(object: any): ErrorResponse {
-    return { message: isSet(object.message) ? globalThis.String(object.message) : "" };
+    return { message: isSet(object.message) ? globalThis.String(object.message) : '' };
   },
 
   toJSON(message: ErrorResponse): unknown {
     const obj: any = {};
-    if (message.message !== "") {
+    if (message.message !== '') {
       obj.message = message.message;
     }
     return obj;
@@ -147,14 +399,14 @@ export const ErrorResponse: MessageFns<ErrorResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ErrorResponse>, I>>(object: I): ErrorResponse {
     const message = createBaseErrorResponse();
-    message.message = object.message ?? "";
+    message.message = object.message ?? '';
     return message;
   },
 };
 
 function bytesFromBase64(b64: string): Uint8Array {
   if ((globalThis as any).Buffer) {
-    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
+    return Uint8Array.from(globalThis.Buffer.from(b64, 'base64'));
   } else {
     const bin = globalThis.atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -167,26 +419,31 @@ function bytesFromBase64(b64: string): Uint8Array {
 
 function base64FromBytes(arr: Uint8Array): string {
   if ((globalThis as any).Buffer) {
-    return globalThis.Buffer.from(arr).toString("base64");
+    return globalThis.Buffer.from(arr).toString('base64');
   } else {
     const bin: string[] = [];
     arr.forEach((byte) => {
       bin.push(globalThis.String.fromCharCode(byte));
     });
-    return globalThis.btoa(bin.join(""));
+    return globalThis.btoa(bin.join(''));
   }
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

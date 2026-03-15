@@ -5,9 +5,9 @@
 // source: auth/auth.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 
-export const protobufPackage = "xmage.auth";
+export const protobufPackage = 'xmage.auth';
 
 export interface LoginRequest {
   username: string;
@@ -18,12 +18,12 @@ export interface LoginResponse {
 }
 
 function createBaseLoginRequest(): LoginRequest {
-  return { username: "" };
+  return { username: '' };
 }
 
 export const LoginRequest: MessageFns<LoginRequest> = {
   encode(message: LoginRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.username !== "") {
+    if (message.username !== '') {
       writer.uint32(10).string(message.username);
     }
     return writer;
@@ -54,12 +54,12 @@ export const LoginRequest: MessageFns<LoginRequest> = {
   },
 
   fromJSON(object: any): LoginRequest {
-    return { username: isSet(object.username) ? globalThis.String(object.username) : "" };
+    return { username: isSet(object.username) ? globalThis.String(object.username) : '' };
   },
 
   toJSON(message: LoginRequest): unknown {
     const obj: any = {};
-    if (message.username !== "") {
+    if (message.username !== '') {
       obj.username = message.username;
     }
     return obj;
@@ -70,18 +70,18 @@ export const LoginRequest: MessageFns<LoginRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<LoginRequest>, I>>(object: I): LoginRequest {
     const message = createBaseLoginRequest();
-    message.username = object.username ?? "";
+    message.username = object.username ?? '';
     return message;
   },
 };
 
 function createBaseLoginResponse(): LoginResponse {
-  return { sessionId: "" };
+  return { sessionId: '' };
 }
 
 export const LoginResponse: MessageFns<LoginResponse> = {
   encode(message: LoginResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.sessionId !== "") {
+    if (message.sessionId !== '') {
       writer.uint32(10).string(message.sessionId);
     }
     return writer;
@@ -116,14 +116,14 @@ export const LoginResponse: MessageFns<LoginResponse> = {
       sessionId: isSet(object.sessionId)
         ? globalThis.String(object.sessionId)
         : isSet(object.session_id)
-        ? globalThis.String(object.session_id)
-        : "",
+          ? globalThis.String(object.session_id)
+          : '',
     };
   },
 
   toJSON(message: LoginResponse): unknown {
     const obj: any = {};
-    if (message.sessionId !== "") {
+    if (message.sessionId !== '') {
       obj.sessionId = message.sessionId;
     }
     return obj;
@@ -134,21 +134,26 @@ export const LoginResponse: MessageFns<LoginResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<LoginResponse>, I>>(object: I): LoginResponse {
     const message = createBaseLoginResponse();
-    message.sessionId = object.sessionId ?? "";
+    message.sessionId = object.sessionId ?? '';
     return message;
   },
 };
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

@@ -5,12 +5,25 @@
 // source: lobby/lobby.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import {
+  MatchTimeLimit,
+  matchTimeLimitFromJSON,
+  matchTimeLimitToJSON,
+  MulliganType,
+  mulliganTypeFromJSON,
+  mulliganTypeToJSON,
+  PlayerType,
+  playerTypeFromJSON,
+  playerTypeToJSON,
+  SkillLevel,
+  skillLevelFromJSON,
+  skillLevelToJSON,
+} from '../common';
 
-export const protobufPackage = "xmage.lobby";
+export const protobufPackage = 'xmage.lobby';
 
-export interface GetTablesRequest {
-}
+export interface GetTablesRequest {}
 
 export interface GetTablesResponse {
   roomId: string;
@@ -30,12 +43,59 @@ export interface TableInfo {
   passworded: boolean;
 }
 
-export interface GetUsersRequest {
-}
+export interface GetUsersRequest {}
 
 export interface GetUsersResponse {
   roomId: string;
   users: UserInfo[];
+}
+
+/** Create table */
+export interface CreateTableRequest {
+  name: string;
+  gameType: string;
+  deckType: string;
+  winsNeeded: number;
+  rollbackTurnsAllowed: boolean;
+  spectatorsAllowed: boolean;
+  rated: boolean;
+  password: string;
+  timeLimit: MatchTimeLimit;
+  mulliganType: MulliganType;
+  freeMulligans: number;
+  quitRatio: number;
+  skillLevel: SkillLevel;
+}
+
+export interface CreateTableResponse {
+  table: TableInfo | undefined;
+}
+
+/** Join table */
+export interface JoinTableRequest {
+  tableId: string;
+  playerName: string;
+  playerType: PlayerType;
+  skill: number;
+  deck: DeckList | undefined;
+  password: string;
+}
+
+export interface JoinTableResponse {
+  success: boolean;
+}
+
+export interface DeckList {
+  name: string;
+  cards: DeckCard[];
+  sideboard: DeckCard[];
+}
+
+export interface DeckCard {
+  cardName: string;
+  setCode: string;
+  cardNumber: string;
+  amount: number;
 }
 
 export interface UserInfo {
@@ -92,12 +152,12 @@ export const GetTablesRequest: MessageFns<GetTablesRequest> = {
 };
 
 function createBaseGetTablesResponse(): GetTablesResponse {
-  return { roomId: "", tables: [] };
+  return { roomId: '', tables: [] };
 }
 
 export const GetTablesResponse: MessageFns<GetTablesResponse> = {
   encode(message: GetTablesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.roomId !== "") {
+    if (message.roomId !== '') {
       writer.uint32(10).string(message.roomId);
     }
     for (const v of message.tables) {
@@ -143,15 +203,17 @@ export const GetTablesResponse: MessageFns<GetTablesResponse> = {
       roomId: isSet(object.roomId)
         ? globalThis.String(object.roomId)
         : isSet(object.room_id)
-        ? globalThis.String(object.room_id)
-        : "",
-      tables: globalThis.Array.isArray(object?.tables) ? object.tables.map((e: any) => TableInfo.fromJSON(e)) : [],
+          ? globalThis.String(object.room_id)
+          : '',
+      tables: globalThis.Array.isArray(object?.tables)
+        ? object.tables.map((e: any) => TableInfo.fromJSON(e))
+        : [],
     };
   },
 
   toJSON(message: GetTablesResponse): unknown {
     const obj: any = {};
-    if (message.roomId !== "") {
+    if (message.roomId !== '') {
       obj.roomId = message.roomId;
     }
     if (message.tables?.length) {
@@ -165,7 +227,7 @@ export const GetTablesResponse: MessageFns<GetTablesResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<GetTablesResponse>, I>>(object: I): GetTablesResponse {
     const message = createBaseGetTablesResponse();
-    message.roomId = object.roomId ?? "";
+    message.roomId = object.roomId ?? '';
     message.tables = object.tables?.map((e) => TableInfo.fromPartial(e)) || [];
     return message;
   },
@@ -173,14 +235,14 @@ export const GetTablesResponse: MessageFns<GetTablesResponse> = {
 
 function createBaseTableInfo(): TableInfo {
   return {
-    tableId: "",
-    tableName: "",
-    controllerName: "",
-    gameType: "",
-    deckType: "",
-    tableState: "",
+    tableId: '',
+    tableName: '',
+    controllerName: '',
+    gameType: '',
+    deckType: '',
+    tableState: '',
     seatsCount: 0,
-    createTime: "",
+    createTime: '',
     rated: false,
     passworded: false,
   };
@@ -188,28 +250,28 @@ function createBaseTableInfo(): TableInfo {
 
 export const TableInfo: MessageFns<TableInfo> = {
   encode(message: TableInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.tableId !== "") {
+    if (message.tableId !== '') {
       writer.uint32(10).string(message.tableId);
     }
-    if (message.tableName !== "") {
+    if (message.tableName !== '') {
       writer.uint32(18).string(message.tableName);
     }
-    if (message.controllerName !== "") {
+    if (message.controllerName !== '') {
       writer.uint32(26).string(message.controllerName);
     }
-    if (message.gameType !== "") {
+    if (message.gameType !== '') {
       writer.uint32(34).string(message.gameType);
     }
-    if (message.deckType !== "") {
+    if (message.deckType !== '') {
       writer.uint32(42).string(message.deckType);
     }
-    if (message.tableState !== "") {
+    if (message.tableState !== '') {
       writer.uint32(50).string(message.tableState);
     }
     if (message.seatsCount !== 0) {
       writer.uint32(56).int32(message.seatsCount);
     }
-    if (message.createTime !== "") {
+    if (message.createTime !== '') {
       writer.uint32(66).string(message.createTime);
     }
     if (message.rated !== false) {
@@ -322,43 +384,43 @@ export const TableInfo: MessageFns<TableInfo> = {
       tableId: isSet(object.tableId)
         ? globalThis.String(object.tableId)
         : isSet(object.table_id)
-        ? globalThis.String(object.table_id)
-        : "",
+          ? globalThis.String(object.table_id)
+          : '',
       tableName: isSet(object.tableName)
         ? globalThis.String(object.tableName)
         : isSet(object.table_name)
-        ? globalThis.String(object.table_name)
-        : "",
+          ? globalThis.String(object.table_name)
+          : '',
       controllerName: isSet(object.controllerName)
         ? globalThis.String(object.controllerName)
         : isSet(object.controller_name)
-        ? globalThis.String(object.controller_name)
-        : "",
+          ? globalThis.String(object.controller_name)
+          : '',
       gameType: isSet(object.gameType)
         ? globalThis.String(object.gameType)
         : isSet(object.game_type)
-        ? globalThis.String(object.game_type)
-        : "",
+          ? globalThis.String(object.game_type)
+          : '',
       deckType: isSet(object.deckType)
         ? globalThis.String(object.deckType)
         : isSet(object.deck_type)
-        ? globalThis.String(object.deck_type)
-        : "",
+          ? globalThis.String(object.deck_type)
+          : '',
       tableState: isSet(object.tableState)
         ? globalThis.String(object.tableState)
         : isSet(object.table_state)
-        ? globalThis.String(object.table_state)
-        : "",
+          ? globalThis.String(object.table_state)
+          : '',
       seatsCount: isSet(object.seatsCount)
         ? globalThis.Number(object.seatsCount)
         : isSet(object.seats_count)
-        ? globalThis.Number(object.seats_count)
-        : 0,
+          ? globalThis.Number(object.seats_count)
+          : 0,
       createTime: isSet(object.createTime)
         ? globalThis.String(object.createTime)
         : isSet(object.create_time)
-        ? globalThis.String(object.create_time)
-        : "",
+          ? globalThis.String(object.create_time)
+          : '',
       rated: isSet(object.rated) ? globalThis.Boolean(object.rated) : false,
       passworded: isSet(object.passworded) ? globalThis.Boolean(object.passworded) : false,
     };
@@ -366,28 +428,28 @@ export const TableInfo: MessageFns<TableInfo> = {
 
   toJSON(message: TableInfo): unknown {
     const obj: any = {};
-    if (message.tableId !== "") {
+    if (message.tableId !== '') {
       obj.tableId = message.tableId;
     }
-    if (message.tableName !== "") {
+    if (message.tableName !== '') {
       obj.tableName = message.tableName;
     }
-    if (message.controllerName !== "") {
+    if (message.controllerName !== '') {
       obj.controllerName = message.controllerName;
     }
-    if (message.gameType !== "") {
+    if (message.gameType !== '') {
       obj.gameType = message.gameType;
     }
-    if (message.deckType !== "") {
+    if (message.deckType !== '') {
       obj.deckType = message.deckType;
     }
-    if (message.tableState !== "") {
+    if (message.tableState !== '') {
       obj.tableState = message.tableState;
     }
     if (message.seatsCount !== 0) {
       obj.seatsCount = Math.round(message.seatsCount);
     }
-    if (message.createTime !== "") {
+    if (message.createTime !== '') {
       obj.createTime = message.createTime;
     }
     if (message.rated !== false) {
@@ -404,14 +466,14 @@ export const TableInfo: MessageFns<TableInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<TableInfo>, I>>(object: I): TableInfo {
     const message = createBaseTableInfo();
-    message.tableId = object.tableId ?? "";
-    message.tableName = object.tableName ?? "";
-    message.controllerName = object.controllerName ?? "";
-    message.gameType = object.gameType ?? "";
-    message.deckType = object.deckType ?? "";
-    message.tableState = object.tableState ?? "";
+    message.tableId = object.tableId ?? '';
+    message.tableName = object.tableName ?? '';
+    message.controllerName = object.controllerName ?? '';
+    message.gameType = object.gameType ?? '';
+    message.deckType = object.deckType ?? '';
+    message.tableState = object.tableState ?? '';
     message.seatsCount = object.seatsCount ?? 0;
-    message.createTime = object.createTime ?? "";
+    message.createTime = object.createTime ?? '';
     message.rated = object.rated ?? false;
     message.passworded = object.passworded ?? false;
     return message;
@@ -462,12 +524,12 @@ export const GetUsersRequest: MessageFns<GetUsersRequest> = {
 };
 
 function createBaseGetUsersResponse(): GetUsersResponse {
-  return { roomId: "", users: [] };
+  return { roomId: '', users: [] };
 }
 
 export const GetUsersResponse: MessageFns<GetUsersResponse> = {
   encode(message: GetUsersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.roomId !== "") {
+    if (message.roomId !== '') {
       writer.uint32(10).string(message.roomId);
     }
     for (const v of message.users) {
@@ -513,15 +575,17 @@ export const GetUsersResponse: MessageFns<GetUsersResponse> = {
       roomId: isSet(object.roomId)
         ? globalThis.String(object.roomId)
         : isSet(object.room_id)
-        ? globalThis.String(object.room_id)
-        : "",
-      users: globalThis.Array.isArray(object?.users) ? object.users.map((e: any) => UserInfo.fromJSON(e)) : [],
+          ? globalThis.String(object.room_id)
+          : '',
+      users: globalThis.Array.isArray(object?.users)
+        ? object.users.map((e: any) => UserInfo.fromJSON(e))
+        : [],
     };
   },
 
   toJSON(message: GetUsersResponse): unknown {
     const obj: any = {};
-    if (message.roomId !== "") {
+    if (message.roomId !== '') {
       obj.roomId = message.roomId;
     }
     if (message.users?.length) {
@@ -535,45 +599,843 @@ export const GetUsersResponse: MessageFns<GetUsersResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<GetUsersResponse>, I>>(object: I): GetUsersResponse {
     const message = createBaseGetUsersResponse();
-    message.roomId = object.roomId ?? "";
+    message.roomId = object.roomId ?? '';
     message.users = object.users?.map((e) => UserInfo.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseCreateTableRequest(): CreateTableRequest {
+  return {
+    name: '',
+    gameType: '',
+    deckType: '',
+    winsNeeded: 0,
+    rollbackTurnsAllowed: false,
+    spectatorsAllowed: false,
+    rated: false,
+    password: '',
+    timeLimit: 0,
+    mulliganType: 0,
+    freeMulligans: 0,
+    quitRatio: 0,
+    skillLevel: 0,
+  };
+}
+
+export const CreateTableRequest: MessageFns<CreateTableRequest> = {
+  encode(message: CreateTableRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== '') {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.gameType !== '') {
+      writer.uint32(18).string(message.gameType);
+    }
+    if (message.deckType !== '') {
+      writer.uint32(26).string(message.deckType);
+    }
+    if (message.winsNeeded !== 0) {
+      writer.uint32(32).int32(message.winsNeeded);
+    }
+    if (message.rollbackTurnsAllowed !== false) {
+      writer.uint32(40).bool(message.rollbackTurnsAllowed);
+    }
+    if (message.spectatorsAllowed !== false) {
+      writer.uint32(48).bool(message.spectatorsAllowed);
+    }
+    if (message.rated !== false) {
+      writer.uint32(56).bool(message.rated);
+    }
+    if (message.password !== '') {
+      writer.uint32(66).string(message.password);
+    }
+    if (message.timeLimit !== 0) {
+      writer.uint32(72).int32(message.timeLimit);
+    }
+    if (message.mulliganType !== 0) {
+      writer.uint32(80).int32(message.mulliganType);
+    }
+    if (message.freeMulligans !== 0) {
+      writer.uint32(88).int32(message.freeMulligans);
+    }
+    if (message.quitRatio !== 0) {
+      writer.uint32(96).int32(message.quitRatio);
+    }
+    if (message.skillLevel !== 0) {
+      writer.uint32(104).int32(message.skillLevel);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateTableRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateTableRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.gameType = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.deckType = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.winsNeeded = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.rollbackTurnsAllowed = reader.bool();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.spectatorsAllowed = reader.bool();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.rated = reader.bool();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.password = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.timeLimit = reader.int32() as any;
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.mulliganType = reader.int32() as any;
+          continue;
+        }
+        case 11: {
+          if (tag !== 88) {
+            break;
+          }
+
+          message.freeMulligans = reader.int32();
+          continue;
+        }
+        case 12: {
+          if (tag !== 96) {
+            break;
+          }
+
+          message.quitRatio = reader.int32();
+          continue;
+        }
+        case 13: {
+          if (tag !== 104) {
+            break;
+          }
+
+          message.skillLevel = reader.int32() as any;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateTableRequest {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      gameType: isSet(object.gameType)
+        ? globalThis.String(object.gameType)
+        : isSet(object.game_type)
+          ? globalThis.String(object.game_type)
+          : '',
+      deckType: isSet(object.deckType)
+        ? globalThis.String(object.deckType)
+        : isSet(object.deck_type)
+          ? globalThis.String(object.deck_type)
+          : '',
+      winsNeeded: isSet(object.winsNeeded)
+        ? globalThis.Number(object.winsNeeded)
+        : isSet(object.wins_needed)
+          ? globalThis.Number(object.wins_needed)
+          : 0,
+      rollbackTurnsAllowed: isSet(object.rollbackTurnsAllowed)
+        ? globalThis.Boolean(object.rollbackTurnsAllowed)
+        : isSet(object.rollback_turns_allowed)
+          ? globalThis.Boolean(object.rollback_turns_allowed)
+          : false,
+      spectatorsAllowed: isSet(object.spectatorsAllowed)
+        ? globalThis.Boolean(object.spectatorsAllowed)
+        : isSet(object.spectators_allowed)
+          ? globalThis.Boolean(object.spectators_allowed)
+          : false,
+      rated: isSet(object.rated) ? globalThis.Boolean(object.rated) : false,
+      password: isSet(object.password) ? globalThis.String(object.password) : '',
+      timeLimit: isSet(object.timeLimit)
+        ? matchTimeLimitFromJSON(object.timeLimit)
+        : isSet(object.time_limit)
+          ? matchTimeLimitFromJSON(object.time_limit)
+          : 0,
+      mulliganType: isSet(object.mulliganType)
+        ? mulliganTypeFromJSON(object.mulliganType)
+        : isSet(object.mulligan_type)
+          ? mulliganTypeFromJSON(object.mulligan_type)
+          : 0,
+      freeMulligans: isSet(object.freeMulligans)
+        ? globalThis.Number(object.freeMulligans)
+        : isSet(object.free_mulligans)
+          ? globalThis.Number(object.free_mulligans)
+          : 0,
+      quitRatio: isSet(object.quitRatio)
+        ? globalThis.Number(object.quitRatio)
+        : isSet(object.quit_ratio)
+          ? globalThis.Number(object.quit_ratio)
+          : 0,
+      skillLevel: isSet(object.skillLevel)
+        ? skillLevelFromJSON(object.skillLevel)
+        : isSet(object.skill_level)
+          ? skillLevelFromJSON(object.skill_level)
+          : 0,
+    };
+  },
+
+  toJSON(message: CreateTableRequest): unknown {
+    const obj: any = {};
+    if (message.name !== '') {
+      obj.name = message.name;
+    }
+    if (message.gameType !== '') {
+      obj.gameType = message.gameType;
+    }
+    if (message.deckType !== '') {
+      obj.deckType = message.deckType;
+    }
+    if (message.winsNeeded !== 0) {
+      obj.winsNeeded = Math.round(message.winsNeeded);
+    }
+    if (message.rollbackTurnsAllowed !== false) {
+      obj.rollbackTurnsAllowed = message.rollbackTurnsAllowed;
+    }
+    if (message.spectatorsAllowed !== false) {
+      obj.spectatorsAllowed = message.spectatorsAllowed;
+    }
+    if (message.rated !== false) {
+      obj.rated = message.rated;
+    }
+    if (message.password !== '') {
+      obj.password = message.password;
+    }
+    if (message.timeLimit !== 0) {
+      obj.timeLimit = matchTimeLimitToJSON(message.timeLimit);
+    }
+    if (message.mulliganType !== 0) {
+      obj.mulliganType = mulliganTypeToJSON(message.mulliganType);
+    }
+    if (message.freeMulligans !== 0) {
+      obj.freeMulligans = Math.round(message.freeMulligans);
+    }
+    if (message.quitRatio !== 0) {
+      obj.quitRatio = Math.round(message.quitRatio);
+    }
+    if (message.skillLevel !== 0) {
+      obj.skillLevel = skillLevelToJSON(message.skillLevel);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateTableRequest>, I>>(base?: I): CreateTableRequest {
+    return CreateTableRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateTableRequest>, I>>(object: I): CreateTableRequest {
+    const message = createBaseCreateTableRequest();
+    message.name = object.name ?? '';
+    message.gameType = object.gameType ?? '';
+    message.deckType = object.deckType ?? '';
+    message.winsNeeded = object.winsNeeded ?? 0;
+    message.rollbackTurnsAllowed = object.rollbackTurnsAllowed ?? false;
+    message.spectatorsAllowed = object.spectatorsAllowed ?? false;
+    message.rated = object.rated ?? false;
+    message.password = object.password ?? '';
+    message.timeLimit = object.timeLimit ?? 0;
+    message.mulliganType = object.mulliganType ?? 0;
+    message.freeMulligans = object.freeMulligans ?? 0;
+    message.quitRatio = object.quitRatio ?? 0;
+    message.skillLevel = object.skillLevel ?? 0;
+    return message;
+  },
+};
+
+function createBaseCreateTableResponse(): CreateTableResponse {
+  return { table: undefined };
+}
+
+export const CreateTableResponse: MessageFns<CreateTableResponse> = {
+  encode(message: CreateTableResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.table !== undefined) {
+      TableInfo.encode(message.table, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateTableResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateTableResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.table = TableInfo.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateTableResponse {
+    return { table: isSet(object.table) ? TableInfo.fromJSON(object.table) : undefined };
+  },
+
+  toJSON(message: CreateTableResponse): unknown {
+    const obj: any = {};
+    if (message.table !== undefined) {
+      obj.table = TableInfo.toJSON(message.table);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateTableResponse>, I>>(base?: I): CreateTableResponse {
+    return CreateTableResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateTableResponse>, I>>(
+    object: I,
+  ): CreateTableResponse {
+    const message = createBaseCreateTableResponse();
+    message.table =
+      object.table !== undefined && object.table !== null
+        ? TableInfo.fromPartial(object.table)
+        : undefined;
+    return message;
+  },
+};
+
+function createBaseJoinTableRequest(): JoinTableRequest {
+  return { tableId: '', playerName: '', playerType: 0, skill: 0, deck: undefined, password: '' };
+}
+
+export const JoinTableRequest: MessageFns<JoinTableRequest> = {
+  encode(message: JoinTableRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tableId !== '') {
+      writer.uint32(10).string(message.tableId);
+    }
+    if (message.playerName !== '') {
+      writer.uint32(18).string(message.playerName);
+    }
+    if (message.playerType !== 0) {
+      writer.uint32(24).int32(message.playerType);
+    }
+    if (message.skill !== 0) {
+      writer.uint32(32).int32(message.skill);
+    }
+    if (message.deck !== undefined) {
+      DeckList.encode(message.deck, writer.uint32(42).fork()).join();
+    }
+    if (message.password !== '') {
+      writer.uint32(50).string(message.password);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): JoinTableRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseJoinTableRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.tableId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.playerName = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.playerType = reader.int32() as any;
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.skill = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.deck = DeckList.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.password = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): JoinTableRequest {
+    return {
+      tableId: isSet(object.tableId)
+        ? globalThis.String(object.tableId)
+        : isSet(object.table_id)
+          ? globalThis.String(object.table_id)
+          : '',
+      playerName: isSet(object.playerName)
+        ? globalThis.String(object.playerName)
+        : isSet(object.player_name)
+          ? globalThis.String(object.player_name)
+          : '',
+      playerType: isSet(object.playerType)
+        ? playerTypeFromJSON(object.playerType)
+        : isSet(object.player_type)
+          ? playerTypeFromJSON(object.player_type)
+          : 0,
+      skill: isSet(object.skill) ? globalThis.Number(object.skill) : 0,
+      deck: isSet(object.deck) ? DeckList.fromJSON(object.deck) : undefined,
+      password: isSet(object.password) ? globalThis.String(object.password) : '',
+    };
+  },
+
+  toJSON(message: JoinTableRequest): unknown {
+    const obj: any = {};
+    if (message.tableId !== '') {
+      obj.tableId = message.tableId;
+    }
+    if (message.playerName !== '') {
+      obj.playerName = message.playerName;
+    }
+    if (message.playerType !== 0) {
+      obj.playerType = playerTypeToJSON(message.playerType);
+    }
+    if (message.skill !== 0) {
+      obj.skill = Math.round(message.skill);
+    }
+    if (message.deck !== undefined) {
+      obj.deck = DeckList.toJSON(message.deck);
+    }
+    if (message.password !== '') {
+      obj.password = message.password;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<JoinTableRequest>, I>>(base?: I): JoinTableRequest {
+    return JoinTableRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<JoinTableRequest>, I>>(object: I): JoinTableRequest {
+    const message = createBaseJoinTableRequest();
+    message.tableId = object.tableId ?? '';
+    message.playerName = object.playerName ?? '';
+    message.playerType = object.playerType ?? 0;
+    message.skill = object.skill ?? 0;
+    message.deck =
+      object.deck !== undefined && object.deck !== null
+        ? DeckList.fromPartial(object.deck)
+        : undefined;
+    message.password = object.password ?? '';
+    return message;
+  },
+};
+
+function createBaseJoinTableResponse(): JoinTableResponse {
+  return { success: false };
+}
+
+export const JoinTableResponse: MessageFns<JoinTableResponse> = {
+  encode(message: JoinTableResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): JoinTableResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseJoinTableResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): JoinTableResponse {
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+  },
+
+  toJSON(message: JoinTableResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<JoinTableResponse>, I>>(base?: I): JoinTableResponse {
+    return JoinTableResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<JoinTableResponse>, I>>(object: I): JoinTableResponse {
+    const message = createBaseJoinTableResponse();
+    message.success = object.success ?? false;
+    return message;
+  },
+};
+
+function createBaseDeckList(): DeckList {
+  return { name: '', cards: [], sideboard: [] };
+}
+
+export const DeckList: MessageFns<DeckList> = {
+  encode(message: DeckList, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== '') {
+      writer.uint32(10).string(message.name);
+    }
+    for (const v of message.cards) {
+      DeckCard.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.sideboard) {
+      DeckCard.encode(v!, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeckList {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeckList();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.cards.push(DeckCard.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.sideboard.push(DeckCard.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeckList {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      cards: globalThis.Array.isArray(object?.cards)
+        ? object.cards.map((e: any) => DeckCard.fromJSON(e))
+        : [],
+      sideboard: globalThis.Array.isArray(object?.sideboard)
+        ? object.sideboard.map((e: any) => DeckCard.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: DeckList): unknown {
+    const obj: any = {};
+    if (message.name !== '') {
+      obj.name = message.name;
+    }
+    if (message.cards?.length) {
+      obj.cards = message.cards.map((e) => DeckCard.toJSON(e));
+    }
+    if (message.sideboard?.length) {
+      obj.sideboard = message.sideboard.map((e) => DeckCard.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeckList>, I>>(base?: I): DeckList {
+    return DeckList.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeckList>, I>>(object: I): DeckList {
+    const message = createBaseDeckList();
+    message.name = object.name ?? '';
+    message.cards = object.cards?.map((e) => DeckCard.fromPartial(e)) || [];
+    message.sideboard = object.sideboard?.map((e) => DeckCard.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseDeckCard(): DeckCard {
+  return { cardName: '', setCode: '', cardNumber: '', amount: 0 };
+}
+
+export const DeckCard: MessageFns<DeckCard> = {
+  encode(message: DeckCard, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.cardName !== '') {
+      writer.uint32(10).string(message.cardName);
+    }
+    if (message.setCode !== '') {
+      writer.uint32(18).string(message.setCode);
+    }
+    if (message.cardNumber !== '') {
+      writer.uint32(26).string(message.cardNumber);
+    }
+    if (message.amount !== 0) {
+      writer.uint32(32).int32(message.amount);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeckCard {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeckCard();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.cardName = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.setCode = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.cardNumber = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.amount = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeckCard {
+    return {
+      cardName: isSet(object.cardName)
+        ? globalThis.String(object.cardName)
+        : isSet(object.card_name)
+          ? globalThis.String(object.card_name)
+          : '',
+      setCode: isSet(object.setCode)
+        ? globalThis.String(object.setCode)
+        : isSet(object.set_code)
+          ? globalThis.String(object.set_code)
+          : '',
+      cardNumber: isSet(object.cardNumber)
+        ? globalThis.String(object.cardNumber)
+        : isSet(object.card_number)
+          ? globalThis.String(object.card_number)
+          : '',
+      amount: isSet(object.amount) ? globalThis.Number(object.amount) : 0,
+    };
+  },
+
+  toJSON(message: DeckCard): unknown {
+    const obj: any = {};
+    if (message.cardName !== '') {
+      obj.cardName = message.cardName;
+    }
+    if (message.setCode !== '') {
+      obj.setCode = message.setCode;
+    }
+    if (message.cardNumber !== '') {
+      obj.cardNumber = message.cardNumber;
+    }
+    if (message.amount !== 0) {
+      obj.amount = Math.round(message.amount);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeckCard>, I>>(base?: I): DeckCard {
+    return DeckCard.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeckCard>, I>>(object: I): DeckCard {
+    const message = createBaseDeckCard();
+    message.cardName = object.cardName ?? '';
+    message.setCode = object.setCode ?? '';
+    message.cardNumber = object.cardNumber ?? '';
+    message.amount = object.amount ?? 0;
     return message;
   },
 };
 
 function createBaseUserInfo(): UserInfo {
   return {
-    userName: "",
-    matchHistory: "",
+    userName: '',
+    matchHistory: '',
     matchQuitRatio: 0,
-    tourneyHistory: "",
+    tourneyHistory: '',
     tourneyQuitRatio: 0,
-    gameInfo: "",
-    pingInfo: "",
+    gameInfo: '',
+    pingInfo: '',
   };
 }
 
 export const UserInfo: MessageFns<UserInfo> = {
   encode(message: UserInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userName !== "") {
+    if (message.userName !== '') {
       writer.uint32(10).string(message.userName);
     }
-    if (message.matchHistory !== "") {
+    if (message.matchHistory !== '') {
       writer.uint32(18).string(message.matchHistory);
     }
     if (message.matchQuitRatio !== 0) {
       writer.uint32(24).int32(message.matchQuitRatio);
     }
-    if (message.tourneyHistory !== "") {
+    if (message.tourneyHistory !== '') {
       writer.uint32(34).string(message.tourneyHistory);
     }
     if (message.tourneyQuitRatio !== 0) {
       writer.uint32(40).int32(message.tourneyQuitRatio);
     }
-    if (message.gameInfo !== "") {
+    if (message.gameInfo !== '') {
       writer.uint32(50).string(message.gameInfo);
     }
-    if (message.pingInfo !== "") {
+    if (message.pingInfo !== '') {
       writer.uint32(58).string(message.pingInfo);
     }
     return writer;
@@ -656,62 +1518,62 @@ export const UserInfo: MessageFns<UserInfo> = {
       userName: isSet(object.userName)
         ? globalThis.String(object.userName)
         : isSet(object.user_name)
-        ? globalThis.String(object.user_name)
-        : "",
+          ? globalThis.String(object.user_name)
+          : '',
       matchHistory: isSet(object.matchHistory)
         ? globalThis.String(object.matchHistory)
         : isSet(object.match_history)
-        ? globalThis.String(object.match_history)
-        : "",
+          ? globalThis.String(object.match_history)
+          : '',
       matchQuitRatio: isSet(object.matchQuitRatio)
         ? globalThis.Number(object.matchQuitRatio)
         : isSet(object.match_quit_ratio)
-        ? globalThis.Number(object.match_quit_ratio)
-        : 0,
+          ? globalThis.Number(object.match_quit_ratio)
+          : 0,
       tourneyHistory: isSet(object.tourneyHistory)
         ? globalThis.String(object.tourneyHistory)
         : isSet(object.tourney_history)
-        ? globalThis.String(object.tourney_history)
-        : "",
+          ? globalThis.String(object.tourney_history)
+          : '',
       tourneyQuitRatio: isSet(object.tourneyQuitRatio)
         ? globalThis.Number(object.tourneyQuitRatio)
         : isSet(object.tourney_quit_ratio)
-        ? globalThis.Number(object.tourney_quit_ratio)
-        : 0,
+          ? globalThis.Number(object.tourney_quit_ratio)
+          : 0,
       gameInfo: isSet(object.gameInfo)
         ? globalThis.String(object.gameInfo)
         : isSet(object.game_info)
-        ? globalThis.String(object.game_info)
-        : "",
+          ? globalThis.String(object.game_info)
+          : '',
       pingInfo: isSet(object.pingInfo)
         ? globalThis.String(object.pingInfo)
         : isSet(object.ping_info)
-        ? globalThis.String(object.ping_info)
-        : "",
+          ? globalThis.String(object.ping_info)
+          : '',
     };
   },
 
   toJSON(message: UserInfo): unknown {
     const obj: any = {};
-    if (message.userName !== "") {
+    if (message.userName !== '') {
       obj.userName = message.userName;
     }
-    if (message.matchHistory !== "") {
+    if (message.matchHistory !== '') {
       obj.matchHistory = message.matchHistory;
     }
     if (message.matchQuitRatio !== 0) {
       obj.matchQuitRatio = Math.round(message.matchQuitRatio);
     }
-    if (message.tourneyHistory !== "") {
+    if (message.tourneyHistory !== '') {
       obj.tourneyHistory = message.tourneyHistory;
     }
     if (message.tourneyQuitRatio !== 0) {
       obj.tourneyQuitRatio = Math.round(message.tourneyQuitRatio);
     }
-    if (message.gameInfo !== "") {
+    if (message.gameInfo !== '') {
       obj.gameInfo = message.gameInfo;
     }
-    if (message.pingInfo !== "") {
+    if (message.pingInfo !== '') {
       obj.pingInfo = message.pingInfo;
     }
     return obj;
@@ -722,27 +1584,32 @@ export const UserInfo: MessageFns<UserInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<UserInfo>, I>>(object: I): UserInfo {
     const message = createBaseUserInfo();
-    message.userName = object.userName ?? "";
-    message.matchHistory = object.matchHistory ?? "";
+    message.userName = object.userName ?? '';
+    message.matchHistory = object.matchHistory ?? '';
     message.matchQuitRatio = object.matchQuitRatio ?? 0;
-    message.tourneyHistory = object.tourneyHistory ?? "";
+    message.tourneyHistory = object.tourneyHistory ?? '';
     message.tourneyQuitRatio = object.tourneyQuitRatio ?? 0;
-    message.gameInfo = object.gameInfo ?? "";
-    message.pingInfo = object.pingInfo ?? "";
+    message.gameInfo = object.gameInfo ?? '';
+    message.pingInfo = object.pingInfo ?? '';
     return message;
   },
 };
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

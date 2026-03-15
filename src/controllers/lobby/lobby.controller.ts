@@ -1,6 +1,13 @@
 import { BaseController } from '../base-controller';
 import type { BaseClient } from '../../base-client';
-import type { GetTablesResponse, GetUsersResponse } from '../../generated/lobby/lobby';
+import type {
+  CreateTableRequest,
+  CreateTableResponse,
+  GetTablesResponse,
+  GetUsersResponse,
+  JoinTableRequest,
+  JoinTableResponse,
+} from '../../generated/lobby/lobby';
 
 export class LobbyController extends BaseController {
   constructor(client: BaseClient) {
@@ -17,5 +24,13 @@ export class LobbyController extends BaseController {
 
   async getUsers(): Promise<GetUsersResponse> {
     return this.client.request<GetUsersResponse>('lobby.getUsers');
+  }
+
+  async createTable(options: CreateTableRequest): Promise<CreateTableResponse> {
+    return this.client.request<CreateTableResponse>('lobby.createTable', options);
+  }
+
+  async joinTable(options: JoinTableRequest): Promise<JoinTableResponse> {
+    return this.client.request<JoinTableResponse>('lobby.joinTable', options);
   }
 }

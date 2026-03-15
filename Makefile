@@ -8,8 +8,8 @@ PROJECT_NAME := tcg-lightning-xmage-bridge
 
 ############################################################################
 # APP
-run-user1: tspc ## run user1
-	bun run dist/scripts/user1.js
+run-try: tspc ## run user1
+	bun run dist/scripts/try.js
 
 tspc: ## compile typescript with typia transforms
 	bunx tspc
@@ -103,6 +103,7 @@ protogen-ts: ## generate typescript types from proto files
 		--ts_proto_out=$(PROTO_TS_OUT) \
 		--ts_proto_opt=esModuleInterop=true \
 		--ts_proto_opt=outputServices=false \
+		--ts_proto_opt=useEnumNames=true \
 		--proto_path=$(PROTO_DIR) \
 		$(PROTO_DIR)/**/*.proto $(PROTO_DIR)/*.proto
 

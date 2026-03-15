@@ -32,7 +32,7 @@ You're my coding assistant, remember these preferences:
 - `make test` — run tests
 - `make typecheck` — type checking
 - `make tspc` — compile TypeScript with typia transforms
-- `make run-user1` — compile and run user1 script
+- `make run-try` — compile and run our test flow
 - `make lint` — run biome linter
 - `make lint-fix` — run biome linter with auto-fix
 - `make format` — format code with biome
@@ -52,3 +52,8 @@ You're my coding assistant, remember these preferences:
 ### Technical Debt
 
 - no authentication, no validation whether the username is taken or something, everybody can just pretend to be anybody (in xmage)
+
+## Commit
+
+1. Commit the submodule in ref/
+2. Commit the main repo with changed submodule commit
