@@ -261,6 +261,582 @@ export function playerTypeToJSON(object: PlayerType): string {
   }
 }
 
+export enum CardType {
+  CARD_TYPE_ARTIFACT = 0,
+  CARD_TYPE_BATTLE = 1,
+  CARD_TYPE_CONSPIRACY = 2,
+  CARD_TYPE_CREATURE = 3,
+  CARD_TYPE_DUNGEON = 4,
+  CARD_TYPE_ENCHANTMENT = 5,
+  CARD_TYPE_INSTANT = 6,
+  CARD_TYPE_LAND = 7,
+  CARD_TYPE_PHENOMENON = 8,
+  CARD_TYPE_PLANE = 9,
+  CARD_TYPE_PLANESWALKER = 10,
+  CARD_TYPE_SCHEME = 11,
+  CARD_TYPE_SORCERY = 12,
+  CARD_TYPE_KINDRED = 13,
+  CARD_TYPE_VANGUARD = 14,
+  UNRECOGNIZED = -1,
+}
+
+export function cardTypeFromJSON(object: any): CardType {
+  switch (object) {
+    case 0:
+    case 'CARD_TYPE_ARTIFACT':
+      return CardType.CARD_TYPE_ARTIFACT;
+    case 1:
+    case 'CARD_TYPE_BATTLE':
+      return CardType.CARD_TYPE_BATTLE;
+    case 2:
+    case 'CARD_TYPE_CONSPIRACY':
+      return CardType.CARD_TYPE_CONSPIRACY;
+    case 3:
+    case 'CARD_TYPE_CREATURE':
+      return CardType.CARD_TYPE_CREATURE;
+    case 4:
+    case 'CARD_TYPE_DUNGEON':
+      return CardType.CARD_TYPE_DUNGEON;
+    case 5:
+    case 'CARD_TYPE_ENCHANTMENT':
+      return CardType.CARD_TYPE_ENCHANTMENT;
+    case 6:
+    case 'CARD_TYPE_INSTANT':
+      return CardType.CARD_TYPE_INSTANT;
+    case 7:
+    case 'CARD_TYPE_LAND':
+      return CardType.CARD_TYPE_LAND;
+    case 8:
+    case 'CARD_TYPE_PHENOMENON':
+      return CardType.CARD_TYPE_PHENOMENON;
+    case 9:
+    case 'CARD_TYPE_PLANE':
+      return CardType.CARD_TYPE_PLANE;
+    case 10:
+    case 'CARD_TYPE_PLANESWALKER':
+      return CardType.CARD_TYPE_PLANESWALKER;
+    case 11:
+    case 'CARD_TYPE_SCHEME':
+      return CardType.CARD_TYPE_SCHEME;
+    case 12:
+    case 'CARD_TYPE_SORCERY':
+      return CardType.CARD_TYPE_SORCERY;
+    case 13:
+    case 'CARD_TYPE_KINDRED':
+      return CardType.CARD_TYPE_KINDRED;
+    case 14:
+    case 'CARD_TYPE_VANGUARD':
+      return CardType.CARD_TYPE_VANGUARD;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return CardType.UNRECOGNIZED;
+  }
+}
+
+export function cardTypeToJSON(object: CardType): string {
+  switch (object) {
+    case CardType.CARD_TYPE_ARTIFACT:
+      return 'CARD_TYPE_ARTIFACT';
+    case CardType.CARD_TYPE_BATTLE:
+      return 'CARD_TYPE_BATTLE';
+    case CardType.CARD_TYPE_CONSPIRACY:
+      return 'CARD_TYPE_CONSPIRACY';
+    case CardType.CARD_TYPE_CREATURE:
+      return 'CARD_TYPE_CREATURE';
+    case CardType.CARD_TYPE_DUNGEON:
+      return 'CARD_TYPE_DUNGEON';
+    case CardType.CARD_TYPE_ENCHANTMENT:
+      return 'CARD_TYPE_ENCHANTMENT';
+    case CardType.CARD_TYPE_INSTANT:
+      return 'CARD_TYPE_INSTANT';
+    case CardType.CARD_TYPE_LAND:
+      return 'CARD_TYPE_LAND';
+    case CardType.CARD_TYPE_PHENOMENON:
+      return 'CARD_TYPE_PHENOMENON';
+    case CardType.CARD_TYPE_PLANE:
+      return 'CARD_TYPE_PLANE';
+    case CardType.CARD_TYPE_PLANESWALKER:
+      return 'CARD_TYPE_PLANESWALKER';
+    case CardType.CARD_TYPE_SCHEME:
+      return 'CARD_TYPE_SCHEME';
+    case CardType.CARD_TYPE_SORCERY:
+      return 'CARD_TYPE_SORCERY';
+    case CardType.CARD_TYPE_KINDRED:
+      return 'CARD_TYPE_KINDRED';
+    case CardType.CARD_TYPE_VANGUARD:
+      return 'CARD_TYPE_VANGUARD';
+    case CardType.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum SuperType {
+  SUPER_TYPE_BASIC = 0,
+  SUPER_TYPE_ELITE = 1,
+  SUPER_TYPE_LEGENDARY = 2,
+  SUPER_TYPE_ONGOING = 3,
+  SUPER_TYPE_SNOW = 4,
+  SUPER_TYPE_WORLD = 5,
+  UNRECOGNIZED = -1,
+}
+
+export function superTypeFromJSON(object: any): SuperType {
+  switch (object) {
+    case 0:
+    case 'SUPER_TYPE_BASIC':
+      return SuperType.SUPER_TYPE_BASIC;
+    case 1:
+    case 'SUPER_TYPE_ELITE':
+      return SuperType.SUPER_TYPE_ELITE;
+    case 2:
+    case 'SUPER_TYPE_LEGENDARY':
+      return SuperType.SUPER_TYPE_LEGENDARY;
+    case 3:
+    case 'SUPER_TYPE_ONGOING':
+      return SuperType.SUPER_TYPE_ONGOING;
+    case 4:
+    case 'SUPER_TYPE_SNOW':
+      return SuperType.SUPER_TYPE_SNOW;
+    case 5:
+    case 'SUPER_TYPE_WORLD':
+      return SuperType.SUPER_TYPE_WORLD;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return SuperType.UNRECOGNIZED;
+  }
+}
+
+export function superTypeToJSON(object: SuperType): string {
+  switch (object) {
+    case SuperType.SUPER_TYPE_BASIC:
+      return 'SUPER_TYPE_BASIC';
+    case SuperType.SUPER_TYPE_ELITE:
+      return 'SUPER_TYPE_ELITE';
+    case SuperType.SUPER_TYPE_LEGENDARY:
+      return 'SUPER_TYPE_LEGENDARY';
+    case SuperType.SUPER_TYPE_ONGOING:
+      return 'SUPER_TYPE_ONGOING';
+    case SuperType.SUPER_TYPE_SNOW:
+      return 'SUPER_TYPE_SNOW';
+    case SuperType.SUPER_TYPE_WORLD:
+      return 'SUPER_TYPE_WORLD';
+    case SuperType.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum Rarity {
+  RARITY_LAND = 0,
+  RARITY_COMMON = 1,
+  RARITY_UNCOMMON = 2,
+  RARITY_RARE = 3,
+  RARITY_MYTHIC = 4,
+  RARITY_SPECIAL = 5,
+  RARITY_BONUS = 6,
+  UNRECOGNIZED = -1,
+}
+
+export function rarityFromJSON(object: any): Rarity {
+  switch (object) {
+    case 0:
+    case 'RARITY_LAND':
+      return Rarity.RARITY_LAND;
+    case 1:
+    case 'RARITY_COMMON':
+      return Rarity.RARITY_COMMON;
+    case 2:
+    case 'RARITY_UNCOMMON':
+      return Rarity.RARITY_UNCOMMON;
+    case 3:
+    case 'RARITY_RARE':
+      return Rarity.RARITY_RARE;
+    case 4:
+    case 'RARITY_MYTHIC':
+      return Rarity.RARITY_MYTHIC;
+    case 5:
+    case 'RARITY_SPECIAL':
+      return Rarity.RARITY_SPECIAL;
+    case 6:
+    case 'RARITY_BONUS':
+      return Rarity.RARITY_BONUS;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return Rarity.UNRECOGNIZED;
+  }
+}
+
+export function rarityToJSON(object: Rarity): string {
+  switch (object) {
+    case Rarity.RARITY_LAND:
+      return 'RARITY_LAND';
+    case Rarity.RARITY_COMMON:
+      return 'RARITY_COMMON';
+    case Rarity.RARITY_UNCOMMON:
+      return 'RARITY_UNCOMMON';
+    case Rarity.RARITY_RARE:
+      return 'RARITY_RARE';
+    case Rarity.RARITY_MYTHIC:
+      return 'RARITY_MYTHIC';
+    case Rarity.RARITY_SPECIAL:
+      return 'RARITY_SPECIAL';
+    case Rarity.RARITY_BONUS:
+      return 'RARITY_BONUS';
+    case Rarity.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum TableState {
+  TABLE_STATE_WAITING = 0,
+  TABLE_STATE_READY_TO_START = 1,
+  TABLE_STATE_STARTING = 2,
+  TABLE_STATE_DRAFTING = 3,
+  TABLE_STATE_CONSTRUCTING = 4,
+  TABLE_STATE_DUELING = 5,
+  TABLE_STATE_SIDEBOARDING = 6,
+  TABLE_STATE_FINISHED = 7,
+  UNRECOGNIZED = -1,
+}
+
+export function tableStateFromJSON(object: any): TableState {
+  switch (object) {
+    case 0:
+    case 'TABLE_STATE_WAITING':
+      return TableState.TABLE_STATE_WAITING;
+    case 1:
+    case 'TABLE_STATE_READY_TO_START':
+      return TableState.TABLE_STATE_READY_TO_START;
+    case 2:
+    case 'TABLE_STATE_STARTING':
+      return TableState.TABLE_STATE_STARTING;
+    case 3:
+    case 'TABLE_STATE_DRAFTING':
+      return TableState.TABLE_STATE_DRAFTING;
+    case 4:
+    case 'TABLE_STATE_CONSTRUCTING':
+      return TableState.TABLE_STATE_CONSTRUCTING;
+    case 5:
+    case 'TABLE_STATE_DUELING':
+      return TableState.TABLE_STATE_DUELING;
+    case 6:
+    case 'TABLE_STATE_SIDEBOARDING':
+      return TableState.TABLE_STATE_SIDEBOARDING;
+    case 7:
+    case 'TABLE_STATE_FINISHED':
+      return TableState.TABLE_STATE_FINISHED;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return TableState.UNRECOGNIZED;
+  }
+}
+
+export function tableStateToJSON(object: TableState): string {
+  switch (object) {
+    case TableState.TABLE_STATE_WAITING:
+      return 'TABLE_STATE_WAITING';
+    case TableState.TABLE_STATE_READY_TO_START:
+      return 'TABLE_STATE_READY_TO_START';
+    case TableState.TABLE_STATE_STARTING:
+      return 'TABLE_STATE_STARTING';
+    case TableState.TABLE_STATE_DRAFTING:
+      return 'TABLE_STATE_DRAFTING';
+    case TableState.TABLE_STATE_CONSTRUCTING:
+      return 'TABLE_STATE_CONSTRUCTING';
+    case TableState.TABLE_STATE_DUELING:
+      return 'TABLE_STATE_DUELING';
+    case TableState.TABLE_STATE_SIDEBOARDING:
+      return 'TABLE_STATE_SIDEBOARDING';
+    case TableState.TABLE_STATE_FINISHED:
+      return 'TABLE_STATE_FINISHED';
+    case TableState.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum QueryType {
+  QUERY_ASK = 0,
+  QUERY_CHOOSE_CHOICE = 1,
+  QUERY_CHOOSE_ABILITY = 2,
+  QUERY_CHOOSE_MODE = 3,
+  QUERY_PICK_TARGET = 4,
+  QUERY_PICK_ABILITY = 5,
+  QUERY_SELECT = 6,
+  QUERY_PLAY_MANA = 7,
+  QUERY_PLAY_X_MANA = 8,
+  QUERY_AMOUNT = 9,
+  QUERY_MULTI_AMOUNT = 10,
+  QUERY_DRAFT_PICK_CARD = 11,
+  QUERY_TOURNAMENT_CONSTRUCT = 12,
+  QUERY_CHOOSE_PILE = 13,
+  QUERY_PERSONAL_MESSAGE = 14,
+  UNRECOGNIZED = -1,
+}
+
+export function queryTypeFromJSON(object: any): QueryType {
+  switch (object) {
+    case 0:
+    case 'QUERY_ASK':
+      return QueryType.QUERY_ASK;
+    case 1:
+    case 'QUERY_CHOOSE_CHOICE':
+      return QueryType.QUERY_CHOOSE_CHOICE;
+    case 2:
+    case 'QUERY_CHOOSE_ABILITY':
+      return QueryType.QUERY_CHOOSE_ABILITY;
+    case 3:
+    case 'QUERY_CHOOSE_MODE':
+      return QueryType.QUERY_CHOOSE_MODE;
+    case 4:
+    case 'QUERY_PICK_TARGET':
+      return QueryType.QUERY_PICK_TARGET;
+    case 5:
+    case 'QUERY_PICK_ABILITY':
+      return QueryType.QUERY_PICK_ABILITY;
+    case 6:
+    case 'QUERY_SELECT':
+      return QueryType.QUERY_SELECT;
+    case 7:
+    case 'QUERY_PLAY_MANA':
+      return QueryType.QUERY_PLAY_MANA;
+    case 8:
+    case 'QUERY_PLAY_X_MANA':
+      return QueryType.QUERY_PLAY_X_MANA;
+    case 9:
+    case 'QUERY_AMOUNT':
+      return QueryType.QUERY_AMOUNT;
+    case 10:
+    case 'QUERY_MULTI_AMOUNT':
+      return QueryType.QUERY_MULTI_AMOUNT;
+    case 11:
+    case 'QUERY_DRAFT_PICK_CARD':
+      return QueryType.QUERY_DRAFT_PICK_CARD;
+    case 12:
+    case 'QUERY_TOURNAMENT_CONSTRUCT':
+      return QueryType.QUERY_TOURNAMENT_CONSTRUCT;
+    case 13:
+    case 'QUERY_CHOOSE_PILE':
+      return QueryType.QUERY_CHOOSE_PILE;
+    case 14:
+    case 'QUERY_PERSONAL_MESSAGE':
+      return QueryType.QUERY_PERSONAL_MESSAGE;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return QueryType.UNRECOGNIZED;
+  }
+}
+
+export function queryTypeToJSON(object: QueryType): string {
+  switch (object) {
+    case QueryType.QUERY_ASK:
+      return 'QUERY_ASK';
+    case QueryType.QUERY_CHOOSE_CHOICE:
+      return 'QUERY_CHOOSE_CHOICE';
+    case QueryType.QUERY_CHOOSE_ABILITY:
+      return 'QUERY_CHOOSE_ABILITY';
+    case QueryType.QUERY_CHOOSE_MODE:
+      return 'QUERY_CHOOSE_MODE';
+    case QueryType.QUERY_PICK_TARGET:
+      return 'QUERY_PICK_TARGET';
+    case QueryType.QUERY_PICK_ABILITY:
+      return 'QUERY_PICK_ABILITY';
+    case QueryType.QUERY_SELECT:
+      return 'QUERY_SELECT';
+    case QueryType.QUERY_PLAY_MANA:
+      return 'QUERY_PLAY_MANA';
+    case QueryType.QUERY_PLAY_X_MANA:
+      return 'QUERY_PLAY_X_MANA';
+    case QueryType.QUERY_AMOUNT:
+      return 'QUERY_AMOUNT';
+    case QueryType.QUERY_MULTI_AMOUNT:
+      return 'QUERY_MULTI_AMOUNT';
+    case QueryType.QUERY_DRAFT_PICK_CARD:
+      return 'QUERY_DRAFT_PICK_CARD';
+    case QueryType.QUERY_TOURNAMENT_CONSTRUCT:
+      return 'QUERY_TOURNAMENT_CONSTRUCT';
+    case QueryType.QUERY_CHOOSE_PILE:
+      return 'QUERY_CHOOSE_PILE';
+    case QueryType.QUERY_PERSONAL_MESSAGE:
+      return 'QUERY_PERSONAL_MESSAGE';
+    case QueryType.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum TurnPhase {
+  TURN_PHASE_BEGINNING = 0,
+  TURN_PHASE_PRECOMBAT_MAIN = 1,
+  TURN_PHASE_COMBAT = 2,
+  TURN_PHASE_POSTCOMBAT_MAIN = 3,
+  TURN_PHASE_END = 4,
+  UNRECOGNIZED = -1,
+}
+
+export function turnPhaseFromJSON(object: any): TurnPhase {
+  switch (object) {
+    case 0:
+    case 'TURN_PHASE_BEGINNING':
+      return TurnPhase.TURN_PHASE_BEGINNING;
+    case 1:
+    case 'TURN_PHASE_PRECOMBAT_MAIN':
+      return TurnPhase.TURN_PHASE_PRECOMBAT_MAIN;
+    case 2:
+    case 'TURN_PHASE_COMBAT':
+      return TurnPhase.TURN_PHASE_COMBAT;
+    case 3:
+    case 'TURN_PHASE_POSTCOMBAT_MAIN':
+      return TurnPhase.TURN_PHASE_POSTCOMBAT_MAIN;
+    case 4:
+    case 'TURN_PHASE_END':
+      return TurnPhase.TURN_PHASE_END;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return TurnPhase.UNRECOGNIZED;
+  }
+}
+
+export function turnPhaseToJSON(object: TurnPhase): string {
+  switch (object) {
+    case TurnPhase.TURN_PHASE_BEGINNING:
+      return 'TURN_PHASE_BEGINNING';
+    case TurnPhase.TURN_PHASE_PRECOMBAT_MAIN:
+      return 'TURN_PHASE_PRECOMBAT_MAIN';
+    case TurnPhase.TURN_PHASE_COMBAT:
+      return 'TURN_PHASE_COMBAT';
+    case TurnPhase.TURN_PHASE_POSTCOMBAT_MAIN:
+      return 'TURN_PHASE_POSTCOMBAT_MAIN';
+    case TurnPhase.TURN_PHASE_END:
+      return 'TURN_PHASE_END';
+    case TurnPhase.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum MessageColor {
+  MSG_COLOR_BLACK = 0,
+  MSG_COLOR_RED = 1,
+  MSG_COLOR_GREEN = 2,
+  MSG_COLOR_BLUE = 3,
+  MSG_COLOR_ORANGE = 4,
+  MSG_COLOR_YELLOW = 5,
+  UNRECOGNIZED = -1,
+}
+
+export function messageColorFromJSON(object: any): MessageColor {
+  switch (object) {
+    case 0:
+    case 'MSG_COLOR_BLACK':
+      return MessageColor.MSG_COLOR_BLACK;
+    case 1:
+    case 'MSG_COLOR_RED':
+      return MessageColor.MSG_COLOR_RED;
+    case 2:
+    case 'MSG_COLOR_GREEN':
+      return MessageColor.MSG_COLOR_GREEN;
+    case 3:
+    case 'MSG_COLOR_BLUE':
+      return MessageColor.MSG_COLOR_BLUE;
+    case 4:
+    case 'MSG_COLOR_ORANGE':
+      return MessageColor.MSG_COLOR_ORANGE;
+    case 5:
+    case 'MSG_COLOR_YELLOW':
+      return MessageColor.MSG_COLOR_YELLOW;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return MessageColor.UNRECOGNIZED;
+  }
+}
+
+export function messageColorToJSON(object: MessageColor): string {
+  switch (object) {
+    case MessageColor.MSG_COLOR_BLACK:
+      return 'MSG_COLOR_BLACK';
+    case MessageColor.MSG_COLOR_RED:
+      return 'MSG_COLOR_RED';
+    case MessageColor.MSG_COLOR_GREEN:
+      return 'MSG_COLOR_GREEN';
+    case MessageColor.MSG_COLOR_BLUE:
+      return 'MSG_COLOR_BLUE';
+    case MessageColor.MSG_COLOR_ORANGE:
+      return 'MSG_COLOR_ORANGE';
+    case MessageColor.MSG_COLOR_YELLOW:
+      return 'MSG_COLOR_YELLOW';
+    case MessageColor.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export enum MessageType {
+  MSG_TYPE_USER_INFO = 0,
+  MSG_TYPE_STATUS = 1,
+  MSG_TYPE_GAME = 2,
+  MSG_TYPE_TALK = 3,
+  MSG_TYPE_WHISPER_FROM = 4,
+  MSG_TYPE_WHISPER_TO = 5,
+  UNRECOGNIZED = -1,
+}
+
+export function messageTypeFromJSON(object: any): MessageType {
+  switch (object) {
+    case 0:
+    case 'MSG_TYPE_USER_INFO':
+      return MessageType.MSG_TYPE_USER_INFO;
+    case 1:
+    case 'MSG_TYPE_STATUS':
+      return MessageType.MSG_TYPE_STATUS;
+    case 2:
+    case 'MSG_TYPE_GAME':
+      return MessageType.MSG_TYPE_GAME;
+    case 3:
+    case 'MSG_TYPE_TALK':
+      return MessageType.MSG_TYPE_TALK;
+    case 4:
+    case 'MSG_TYPE_WHISPER_FROM':
+      return MessageType.MSG_TYPE_WHISPER_FROM;
+    case 5:
+    case 'MSG_TYPE_WHISPER_TO':
+      return MessageType.MSG_TYPE_WHISPER_TO;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return MessageType.UNRECOGNIZED;
+  }
+}
+
+export function messageTypeToJSON(object: MessageType): string {
+  switch (object) {
+    case MessageType.MSG_TYPE_USER_INFO:
+      return 'MSG_TYPE_USER_INFO';
+    case MessageType.MSG_TYPE_STATUS:
+      return 'MSG_TYPE_STATUS';
+    case MessageType.MSG_TYPE_GAME:
+      return 'MSG_TYPE_GAME';
+    case MessageType.MSG_TYPE_TALK:
+      return 'MSG_TYPE_TALK';
+    case MessageType.MSG_TYPE_WHISPER_FROM:
+      return 'MSG_TYPE_WHISPER_FROM';
+    case MessageType.MSG_TYPE_WHISPER_TO:
+      return 'MSG_TYPE_WHISPER_TO';
+    case MessageType.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
 export interface WsMessage {
   type: string;
   payload: Uint8Array;

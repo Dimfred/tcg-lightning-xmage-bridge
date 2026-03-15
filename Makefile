@@ -8,8 +8,11 @@ PROJECT_NAME := tcg-lightning-xmage-bridge
 
 ############################################################################
 # APP
-run-try: tspc ## run user1
-	bun run dist/scripts/try.js
+run-user1: tspc ## run user1 (creates table, waits for user2)
+	bun run dist/scripts/user1.js
+
+run-user2: tspc ## run user2 (finds and joins first available table)
+	bun run dist/scripts/user2.js
 
 tspc: ## compile typescript with typia transforms
 	bunx tspc
