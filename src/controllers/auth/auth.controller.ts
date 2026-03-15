@@ -1,6 +1,6 @@
 import { BaseController } from '../base-controller';
 import type { BaseClient } from '../../base-client';
-import type { LoginRequest, LoginResponse } from './auth.dto';
+import type { LoginRequest, LoginResponse } from '../../generated/auth/auth';
 
 export class AuthController extends BaseController {
   constructor(client: BaseClient) {

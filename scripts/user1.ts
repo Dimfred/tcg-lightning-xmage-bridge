@@ -10,8 +10,14 @@ async function main() {
   await client.connect();
   logger.info('Connected to proxy');
 
-  const result = await client.auth.login('user1');
-  logger.info({ result }, 'Logged in');
+  const loginResult = await client.auth.login('user1');
+  logger.info({ loginResult }, 'Logged in');
+
+  const tables = await client.lobby.getTables();
+  logger.info({ tables }, 'Tables');
+
+  const users = await client.lobby.getUsers();
+  logger.info({ users }, 'Users');
 
   client.disconnect();
 }

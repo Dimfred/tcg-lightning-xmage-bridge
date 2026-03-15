@@ -74,8 +74,8 @@ xmage-clean: ## clean xmage build artifacts
 	cd $(XMAGE_REF) && mvn clean
 	rm -rf $(XMAGE_SERVER_DIR)
 
-xmage-init: ## install java and maven via brew
-	brew install openjdk maven
+xmage-init: ## install java, maven and protobuf via brew
+	brew install openjdk maven protobuf
 
 ############################################################################
 # WEBSOCKET PROXY
@@ -86,6 +86,31 @@ proxy-build: ## build the websocket proxy
 
 proxy-run: ## run the websocket proxy (xmage server must be running)
 	cd $(XMAGE_PROXY_DIR) && MAVEN_OPTS="$(JVM_ADD_OPENS)" mvn exec:java
+
+############################################################################
+# PROTOBUF
+PROTO_DIR := proto
+PROTO_TS_OUT := src/generated
+PROTO_JAVA_OUT := $(XMAGE_PROXY_DIR)/src/main/java
+
+protogen: protogen-ts protogen-java ## generate all protobuf types
+
+protogen-ts: ## generate typescript types from proto files
+	rm -rf $(PROTO_TS_OUT)
+	mkdir -p $(PROTO_TS_OUT)
+	protoc \
+		--plugin=./node_modules/.bin/protoc-gen-ts_proto \
+		--ts_proto_out=$(PROTO_TS_OUT) \
+		--ts_proto_opt=esModuleInterop=true \
+		--ts_proto_opt=outputServices=false \
+		--proto_path=$(PROTO_DIR) \
+		$(PROTO_DIR)/**/*.proto $(PROTO_DIR)/*.proto
+
+protogen-java: ## generate java types from proto files
+	protoc \
+		--java_out=$(PROTO_JAVA_OUT) \
+		--proto_path=$(PROTO_DIR) \
+		$(PROTO_DIR)/**/*.proto $(PROTO_DIR)/*.proto
 
 ############################################################################
 # HELP

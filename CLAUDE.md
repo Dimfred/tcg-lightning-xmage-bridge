@@ -19,6 +19,7 @@ You're my coding assistant, remember these preferences:
 - Use `biome` for linting and formatting (configured in `biome.json`, not package.json scripts)
 - Use `typia` for runtime validation — requires `tspc` compile step before running
 - Use `pino` for logging — `glogger` is the root logger, `createLogger('ClassName')` for derived loggers
+- DTOs live in `controllers/<name>/<name>.dto.ts` — always suffix types with `Request` or `Response` (e.g. `LoginRequest`, `LoginResponse`)
 
 ## Testing
 
@@ -47,3 +48,7 @@ You're my coding assistant, remember these preferences:
 - `make xmage-package` — build and package server zip
 - `make proxy-build` — build the WebSocket proxy
 - `make proxy-run` — run the proxy
+
+### Technical Debt
+
+- no authentication, no validation whether the username is taken or something, everybody can just pretend to be anybody (in xmage)
