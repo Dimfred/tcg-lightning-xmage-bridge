@@ -104,6 +104,9 @@ CMakeFiles
 # DB
 **/*.db
 
+# XMAGE
+xmage-server/
+
 # SUBMODULES
 
 

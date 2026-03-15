@@ -2,36 +2,42 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "target": "ESNext",
-    "module": "Preserve",
+    "module": "ESNext",
     "moduleDetection": "force",
     "allowJs": true,
-
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
-
     "strict": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests"
+  ]
 }

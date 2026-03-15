@@ -1,3 +1,4 @@
 [submodule "ref/mage"]
 	path = ref/mage
-	url = git@github.com:magefree/mage.git
+	url = git@github.com:Dimfred/mage.git
+	branch = feat/websocket-proxy
