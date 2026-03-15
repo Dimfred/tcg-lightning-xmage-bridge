@@ -19,6 +19,7 @@ const testDeck = {
 async function main() {
   // --- User 1: create table and join ---
   const user1 = new XmageClient(config.websocketUrl);
+  user1.on('*', (msg) => logger.info(msg as object, 'user1 event'));
   await user1.connect();
   await user1.auth.login('user1');
   logger.info('User1 logged in');
@@ -54,6 +55,7 @@ async function main() {
 
   // --- User 2: join the same table ---
   const user2 = new XmageClient(config.websocketUrl);
+  user2.on('*', (msg) => logger.info(msg as object, 'user2 event'));
   await user2.connect();
   await user2.auth.login('user2');
   logger.info('User2 logged in');
@@ -68,13 +70,16 @@ async function main() {
   });
   logger.info('User2 joined table');
 
-  // keep connections alive to see what happens
-  logger.info('Both users joined. Waiting for game events...');
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  // Wait for user2's join to be acknowledged, then start the match
+  logger.info('Both users joined. Starting match...');
 
-  user1.disconnect();
-  user2.disconnect();
-  logger.info('Done');
+  await user1.lobby.startMatch({
+    tableId: table.table!.tableId,
+  });
+  logger.info('Match started');
+
+  // Keep alive — exit with ctrl+c
+  await new Promise(() => {});
 }
 
 main();

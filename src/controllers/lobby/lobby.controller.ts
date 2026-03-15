@@ -7,6 +7,8 @@ import type {
   GetUsersResponse,
   JoinTableRequest,
   JoinTableResponse,
+  StartMatchRequest,
+  StartMatchResponse,
 } from '../../generated/lobby/lobby';
 
 export class LobbyController extends BaseController {
@@ -32,5 +34,9 @@ export class LobbyController extends BaseController {
 
   async joinTable(options: JoinTableRequest): Promise<JoinTableResponse> {
     return this.client.request<JoinTableResponse>('lobby.joinTable', options);
+  }
+
+  async startMatch(options: StartMatchRequest): Promise<StartMatchResponse> {
+    return this.client.request<StartMatchResponse>('lobby.startMatch', options);
   }
 }

@@ -85,6 +85,15 @@ export interface JoinTableResponse {
   success: boolean;
 }
 
+/** Start match */
+export interface StartMatchRequest {
+  tableId: string;
+}
+
+export interface StartMatchResponse {
+  success: boolean;
+}
+
 export interface DeckList {
   name: string;
   cards: DeckCard[];
@@ -1182,6 +1191,128 @@ export const JoinTableResponse: MessageFns<JoinTableResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<JoinTableResponse>, I>>(object: I): JoinTableResponse {
     const message = createBaseJoinTableResponse();
+    message.success = object.success ?? false;
+    return message;
+  },
+};
+
+function createBaseStartMatchRequest(): StartMatchRequest {
+  return { tableId: '' };
+}
+
+export const StartMatchRequest: MessageFns<StartMatchRequest> = {
+  encode(message: StartMatchRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tableId !== '') {
+      writer.uint32(10).string(message.tableId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StartMatchRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStartMatchRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.tableId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StartMatchRequest {
+    return {
+      tableId: isSet(object.tableId)
+        ? globalThis.String(object.tableId)
+        : isSet(object.table_id)
+          ? globalThis.String(object.table_id)
+          : '',
+    };
+  },
+
+  toJSON(message: StartMatchRequest): unknown {
+    const obj: any = {};
+    if (message.tableId !== '') {
+      obj.tableId = message.tableId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StartMatchRequest>, I>>(base?: I): StartMatchRequest {
+    return StartMatchRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StartMatchRequest>, I>>(object: I): StartMatchRequest {
+    const message = createBaseStartMatchRequest();
+    message.tableId = object.tableId ?? '';
+    return message;
+  },
+};
+
+function createBaseStartMatchResponse(): StartMatchResponse {
+  return { success: false };
+}
+
+export const StartMatchResponse: MessageFns<StartMatchResponse> = {
+  encode(message: StartMatchResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StartMatchResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStartMatchResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StartMatchResponse {
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+  },
+
+  toJSON(message: StartMatchResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StartMatchResponse>, I>>(base?: I): StartMatchResponse {
+    return StartMatchResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StartMatchResponse>, I>>(object: I): StartMatchResponse {
+    const message = createBaseStartMatchResponse();
     message.success = object.success ?? false;
     return message;
   },

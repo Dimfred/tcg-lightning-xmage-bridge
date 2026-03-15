@@ -102,8 +102,18 @@ export class BaseClient {
 
   private emit(event: string, data: unknown): void {
     const handlers = this.handlers.get(event);
+    const wildcardHandlers = this.handlers.get('*');
+
+    if (wildcardHandlers) {
+      for (const handler of wildcardHandlers) {
+        handler({ event, data });
+      }
+    }
+
     if (!handlers) {
-      this.logger.warn({ event, data }, 'No handler registered for event');
+      if (!wildcardHandlers) {
+        this.logger.warn({ event, data }, 'No handler registered for event');
+      }
       return;
     }
     for (const handler of handlers) {
