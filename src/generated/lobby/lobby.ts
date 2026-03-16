@@ -10,15 +10,19 @@ import {
   MatchTimeLimit,
   matchTimeLimitFromJSON,
   matchTimeLimitToJSON,
+  matchTimeLimitToNumber,
   MulliganType,
   mulliganTypeFromJSON,
   mulliganTypeToJSON,
+  mulliganTypeToNumber,
   PlayerType,
   playerTypeFromJSON,
   playerTypeToJSON,
+  playerTypeToNumber,
   SkillLevel,
   skillLevelFromJSON,
   skillLevelToJSON,
+  skillLevelToNumber,
 } from '../common';
 
 export const protobufPackage = 'xmage.lobby';
@@ -655,11 +659,11 @@ function createBaseCreateTableRequest(): CreateTableRequest {
     spectatorsAllowed: false,
     rated: false,
     password: '',
-    timeLimit: 0,
-    mulliganType: 0,
+    timeLimit: MatchTimeLimit.MATCH_TIME_NONE,
+    mulliganType: MulliganType.MULLIGAN_GAME_DEFAULT,
     freeMulligans: 0,
     quitRatio: 0,
-    skillLevel: 0,
+    skillLevel: SkillLevel.SKILL_BEGINNER,
   };
 }
 
@@ -689,11 +693,11 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
     if (message.password !== '') {
       writer.uint32(66).string(message.password);
     }
-    if (message.timeLimit !== 0) {
-      writer.uint32(72).int32(message.timeLimit);
+    if (message.timeLimit !== MatchTimeLimit.MATCH_TIME_NONE) {
+      writer.uint32(72).int32(matchTimeLimitToNumber(message.timeLimit));
     }
-    if (message.mulliganType !== 0) {
-      writer.uint32(80).int32(message.mulliganType);
+    if (message.mulliganType !== MulliganType.MULLIGAN_GAME_DEFAULT) {
+      writer.uint32(80).int32(mulliganTypeToNumber(message.mulliganType));
     }
     if (message.freeMulligans !== 0) {
       writer.uint32(88).int32(message.freeMulligans);
@@ -701,8 +705,8 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
     if (message.quitRatio !== 0) {
       writer.uint32(96).int32(message.quitRatio);
     }
-    if (message.skillLevel !== 0) {
-      writer.uint32(104).int32(message.skillLevel);
+    if (message.skillLevel !== SkillLevel.SKILL_BEGINNER) {
+      writer.uint32(104).int32(skillLevelToNumber(message.skillLevel));
     }
     return writer;
   },
@@ -783,7 +787,7 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
             break;
           }
 
-          message.timeLimit = reader.int32() as any;
+          message.timeLimit = matchTimeLimitFromJSON(reader.int32());
           continue;
         }
         case 10: {
@@ -791,7 +795,7 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
             break;
           }
 
-          message.mulliganType = reader.int32() as any;
+          message.mulliganType = mulliganTypeFromJSON(reader.int32());
           continue;
         }
         case 11: {
@@ -815,7 +819,7 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
             break;
           }
 
-          message.skillLevel = reader.int32() as any;
+          message.skillLevel = skillLevelFromJSON(reader.int32());
           continue;
         }
       }
@@ -861,12 +865,12 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
         ? matchTimeLimitFromJSON(object.timeLimit)
         : isSet(object.time_limit)
           ? matchTimeLimitFromJSON(object.time_limit)
-          : 0,
+          : MatchTimeLimit.MATCH_TIME_NONE,
       mulliganType: isSet(object.mulliganType)
         ? mulliganTypeFromJSON(object.mulliganType)
         : isSet(object.mulligan_type)
           ? mulliganTypeFromJSON(object.mulligan_type)
-          : 0,
+          : MulliganType.MULLIGAN_GAME_DEFAULT,
       freeMulligans: isSet(object.freeMulligans)
         ? globalThis.Number(object.freeMulligans)
         : isSet(object.free_mulligans)
@@ -881,7 +885,7 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
         ? skillLevelFromJSON(object.skillLevel)
         : isSet(object.skill_level)
           ? skillLevelFromJSON(object.skill_level)
-          : 0,
+          : SkillLevel.SKILL_BEGINNER,
     };
   },
 
@@ -911,10 +915,10 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
     if (message.password !== '') {
       obj.password = message.password;
     }
-    if (message.timeLimit !== 0) {
+    if (message.timeLimit !== MatchTimeLimit.MATCH_TIME_NONE) {
       obj.timeLimit = matchTimeLimitToJSON(message.timeLimit);
     }
-    if (message.mulliganType !== 0) {
+    if (message.mulliganType !== MulliganType.MULLIGAN_GAME_DEFAULT) {
       obj.mulliganType = mulliganTypeToJSON(message.mulliganType);
     }
     if (message.freeMulligans !== 0) {
@@ -923,7 +927,7 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
     if (message.quitRatio !== 0) {
       obj.quitRatio = Math.round(message.quitRatio);
     }
-    if (message.skillLevel !== 0) {
+    if (message.skillLevel !== SkillLevel.SKILL_BEGINNER) {
       obj.skillLevel = skillLevelToJSON(message.skillLevel);
     }
     return obj;
@@ -942,11 +946,11 @@ export const CreateTableRequest: MessageFns<CreateTableRequest> = {
     message.spectatorsAllowed = object.spectatorsAllowed ?? false;
     message.rated = object.rated ?? false;
     message.password = object.password ?? '';
-    message.timeLimit = object.timeLimit ?? 0;
-    message.mulliganType = object.mulliganType ?? 0;
+    message.timeLimit = object.timeLimit ?? MatchTimeLimit.MATCH_TIME_NONE;
+    message.mulliganType = object.mulliganType ?? MulliganType.MULLIGAN_GAME_DEFAULT;
     message.freeMulligans = object.freeMulligans ?? 0;
     message.quitRatio = object.quitRatio ?? 0;
-    message.skillLevel = object.skillLevel ?? 0;
+    message.skillLevel = object.skillLevel ?? SkillLevel.SKILL_BEGINNER;
     return message;
   },
 };
@@ -1015,7 +1019,14 @@ export const CreateTableResponse: MessageFns<CreateTableResponse> = {
 };
 
 function createBaseJoinTableRequest(): JoinTableRequest {
-  return { tableId: '', playerName: '', playerType: 0, skill: 0, deck: undefined, password: '' };
+  return {
+    tableId: '',
+    playerName: '',
+    playerType: PlayerType.PLAYER_HUMAN,
+    skill: 0,
+    deck: undefined,
+    password: '',
+  };
 }
 
 export const JoinTableRequest: MessageFns<JoinTableRequest> = {
@@ -1026,8 +1037,8 @@ export const JoinTableRequest: MessageFns<JoinTableRequest> = {
     if (message.playerName !== '') {
       writer.uint32(18).string(message.playerName);
     }
-    if (message.playerType !== 0) {
-      writer.uint32(24).int32(message.playerType);
+    if (message.playerType !== PlayerType.PLAYER_HUMAN) {
+      writer.uint32(24).int32(playerTypeToNumber(message.playerType));
     }
     if (message.skill !== 0) {
       writer.uint32(32).int32(message.skill);
@@ -1069,7 +1080,7 @@ export const JoinTableRequest: MessageFns<JoinTableRequest> = {
             break;
           }
 
-          message.playerType = reader.int32() as any;
+          message.playerType = playerTypeFromJSON(reader.int32());
           continue;
         }
         case 4: {
@@ -1121,7 +1132,7 @@ export const JoinTableRequest: MessageFns<JoinTableRequest> = {
         ? playerTypeFromJSON(object.playerType)
         : isSet(object.player_type)
           ? playerTypeFromJSON(object.player_type)
-          : 0,
+          : PlayerType.PLAYER_HUMAN,
       skill: isSet(object.skill) ? globalThis.Number(object.skill) : 0,
       deck: isSet(object.deck) ? DeckList.fromJSON(object.deck) : undefined,
       password: isSet(object.password) ? globalThis.String(object.password) : '',
@@ -1136,7 +1147,7 @@ export const JoinTableRequest: MessageFns<JoinTableRequest> = {
     if (message.playerName !== '') {
       obj.playerName = message.playerName;
     }
-    if (message.playerType !== 0) {
+    if (message.playerType !== PlayerType.PLAYER_HUMAN) {
       obj.playerType = playerTypeToJSON(message.playerType);
     }
     if (message.skill !== 0) {
@@ -1158,7 +1169,7 @@ export const JoinTableRequest: MessageFns<JoinTableRequest> = {
     const message = createBaseJoinTableRequest();
     message.tableId = object.tableId ?? '';
     message.playerName = object.playerName ?? '';
-    message.playerType = object.playerType ?? 0;
+    message.playerType = object.playerType ?? PlayerType.PLAYER_HUMAN;
     message.skill = object.skill ?? 0;
     message.deck =
       object.deck !== undefined && object.deck !== null

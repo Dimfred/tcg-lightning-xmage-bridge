@@ -32,4 +32,8 @@ export class GameController extends BaseController {
   async sendPlayerString(request: SendPlayerStringRequest): Promise<SendPlayerActionResponse> {
     return this.client.request<SendPlayerActionResponse>('game.sendPlayerString', request);
   }
+
+  async passPriority(gameId: string): Promise<SendPlayerActionResponse> {
+    return this.sendPlayerBoolean({ gameId, data: false });
+  }
 }

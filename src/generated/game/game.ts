@@ -10,15 +10,19 @@ import {
   CardType,
   cardTypeFromJSON,
   cardTypeToJSON,
+  cardTypeToNumber,
   QueryType,
   queryTypeFromJSON,
   queryTypeToJSON,
+  queryTypeToNumber,
   Rarity,
   rarityFromJSON,
   rarityToJSON,
+  rarityToNumber,
   SuperType,
   superTypeFromJSON,
   superTypeToJSON,
+  superTypeToNumber,
 } from '../common';
 
 export const protobufPackage = 'xmage.game';
@@ -609,7 +613,7 @@ export const GameTargetEvent: MessageFns<GameTargetEvent> = {
 };
 
 function createBaseTargetOptions(): TargetOptions {
-  return { chosenTargets: [], queryType: 0 };
+  return { chosenTargets: [], queryType: QueryType.QUERY_ASK };
 }
 
 export const TargetOptions: MessageFns<TargetOptions> = {
@@ -617,8 +621,8 @@ export const TargetOptions: MessageFns<TargetOptions> = {
     for (const v of message.chosenTargets) {
       writer.uint32(10).string(v!);
     }
-    if (message.queryType !== 0) {
-      writer.uint32(16).int32(message.queryType);
+    if (message.queryType !== QueryType.QUERY_ASK) {
+      writer.uint32(16).int32(queryTypeToNumber(message.queryType));
     }
     return writer;
   },
@@ -643,7 +647,7 @@ export const TargetOptions: MessageFns<TargetOptions> = {
             break;
           }
 
-          message.queryType = reader.int32() as any;
+          message.queryType = queryTypeFromJSON(reader.int32());
           continue;
         }
       }
@@ -666,7 +670,7 @@ export const TargetOptions: MessageFns<TargetOptions> = {
         ? queryTypeFromJSON(object.queryType)
         : isSet(object.query_type)
           ? queryTypeFromJSON(object.query_type)
-          : 0,
+          : QueryType.QUERY_ASK,
     };
   },
 
@@ -675,7 +679,7 @@ export const TargetOptions: MessageFns<TargetOptions> = {
     if (message.chosenTargets?.length) {
       obj.chosenTargets = message.chosenTargets;
     }
-    if (message.queryType !== 0) {
+    if (message.queryType !== QueryType.QUERY_ASK) {
       obj.queryType = queryTypeToJSON(message.queryType);
     }
     return obj;
@@ -687,7 +691,7 @@ export const TargetOptions: MessageFns<TargetOptions> = {
   fromPartial<I extends Exact<DeepPartial<TargetOptions>, I>>(object: I): TargetOptions {
     const message = createBaseTargetOptions();
     message.chosenTargets = object.chosenTargets?.map((e) => e) || [];
-    message.queryType = object.queryType ?? 0;
+    message.queryType = object.queryType ?? QueryType.QUERY_ASK;
     return message;
   },
 };
@@ -3166,7 +3170,7 @@ function createBaseCardView(): CardView {
     subTypes: [],
     superTypes: [],
     color: [],
-    rarity: 0,
+    rarity: Rarity.LAND_RARITY,
     setCode: '',
     cardNumber: '',
     tapped: false,
@@ -3204,7 +3208,7 @@ export const CardView: MessageFns<CardView> = {
     }
     writer.uint32(66).fork();
     for (const v of message.cardTypes) {
-      writer.int32(v);
+      writer.int32(cardTypeToNumber(v));
     }
     writer.join();
     for (const v of message.subTypes) {
@@ -3212,14 +3216,14 @@ export const CardView: MessageFns<CardView> = {
     }
     writer.uint32(82).fork();
     for (const v of message.superTypes) {
-      writer.int32(v);
+      writer.int32(superTypeToNumber(v));
     }
     writer.join();
     for (const v of message.color) {
       writer.uint32(90).string(v!);
     }
-    if (message.rarity !== 0) {
-      writer.uint32(96).int32(message.rarity);
+    if (message.rarity !== Rarity.LAND_RARITY) {
+      writer.uint32(96).int32(rarityToNumber(message.rarity));
     }
     if (message.setCode !== '') {
       writer.uint32(106).string(message.setCode);
@@ -3316,7 +3320,7 @@ export const CardView: MessageFns<CardView> = {
         }
         case 8: {
           if (tag === 64) {
-            message.cardTypes.push(reader.int32() as any);
+            message.cardTypes.push(cardTypeFromJSON(reader.int32()));
 
             continue;
           }
@@ -3324,7 +3328,7 @@ export const CardView: MessageFns<CardView> = {
           if (tag === 66) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.cardTypes.push(reader.int32() as any);
+              message.cardTypes.push(cardTypeFromJSON(reader.int32()));
             }
 
             continue;
@@ -3342,7 +3346,7 @@ export const CardView: MessageFns<CardView> = {
         }
         case 10: {
           if (tag === 80) {
-            message.superTypes.push(reader.int32() as any);
+            message.superTypes.push(superTypeFromJSON(reader.int32()));
 
             continue;
           }
@@ -3350,7 +3354,7 @@ export const CardView: MessageFns<CardView> = {
           if (tag === 82) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.superTypes.push(reader.int32() as any);
+              message.superTypes.push(superTypeFromJSON(reader.int32()));
             }
 
             continue;
@@ -3371,7 +3375,7 @@ export const CardView: MessageFns<CardView> = {
             break;
           }
 
-          message.rarity = reader.int32() as any;
+          message.rarity = rarityFromJSON(reader.int32());
           continue;
         }
         case 13: {
@@ -3488,7 +3492,7 @@ export const CardView: MessageFns<CardView> = {
       color: globalThis.Array.isArray(object?.color)
         ? object.color.map((e: any) => globalThis.String(e))
         : [],
-      rarity: isSet(object.rarity) ? rarityFromJSON(object.rarity) : 0,
+      rarity: isSet(object.rarity) ? rarityFromJSON(object.rarity) : Rarity.LAND_RARITY,
       setCode: isSet(object.setCode)
         ? globalThis.String(object.setCode)
         : isSet(object.set_code)
@@ -3556,7 +3560,7 @@ export const CardView: MessageFns<CardView> = {
     if (message.color?.length) {
       obj.color = message.color;
     }
-    if (message.rarity !== 0) {
+    if (message.rarity !== Rarity.LAND_RARITY) {
       obj.rarity = rarityToJSON(message.rarity);
     }
     if (message.setCode !== '') {
@@ -3605,7 +3609,7 @@ export const CardView: MessageFns<CardView> = {
     message.subTypes = object.subTypes?.map((e) => e) || [];
     message.superTypes = object.superTypes?.map((e) => e) || [];
     message.color = object.color?.map((e) => e) || [];
-    message.rarity = object.rarity ?? 0;
+    message.rarity = object.rarity ?? Rarity.LAND_RARITY;
     message.setCode = object.setCode ?? '';
     message.cardNumber = object.cardNumber ?? '';
     message.tapped = object.tapped ?? false;

@@ -107,6 +107,8 @@ protogen-ts: ## generate typescript types from proto files
 		--ts_proto_opt=esModuleInterop=true \
 		--ts_proto_opt=outputServices=false \
 		--ts_proto_opt=useEnumNames=true \
+		--ts_proto_opt=stringEnums=true \
+		--ts_proto_opt=removeEnumPrefix=true \
 		--proto_path=$(PROTO_DIR) \
 		$(PROTO_DIR)/**/*.proto $(PROTO_DIR)/*.proto
 
