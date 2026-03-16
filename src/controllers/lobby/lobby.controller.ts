@@ -7,11 +7,17 @@ import type {
   GetUsersResponse,
   JoinTableRequest,
   JoinTableResponse,
+  LeaveTableRequest,
+  LeaveTableResponse,
   StartMatchRequest,
   StartMatchResponse,
 } from '../../generated/lobby/lobby';
 
+type TablesHandler = (tables: GetTablesResponse) => void;
+
 export class LobbyController extends BaseController {
+  private tablesHandler: TablesHandler | null = null;
+
   constructor(client: BaseClient) {
     super(client);
   }
@@ -38,5 +44,23 @@ export class LobbyController extends BaseController {
 
   async startMatch(options: StartMatchRequest): Promise<StartMatchResponse> {
     return this.client.request<StartMatchResponse>('lobby.startMatch', options);
+  }
+
+  async leaveTable(options: LeaveTableRequest): Promise<LeaveTableResponse> {
+    return this.client.request<LeaveTableResponse>('lobby.leaveTable', options);
+  }
+
+  subscribeTables(handler: TablesHandler): void {
+    this.tablesHandler = handler;
+    this.client.on('lobby.tablesUpdate', handler as (data: unknown) => void);
+    this.client.send('lobby.subscribeTables');
+  }
+
+  unsubscribeTables(): void {
+    this.client.send('lobby.unsubscribeTables');
+    if (this.tablesHandler) {
+      this.client.off('lobby.tablesUpdate', this.tablesHandler as (data: unknown) => void);
+      this.tablesHandler = null;
+    }
   }
 }

@@ -41,6 +41,7 @@ export interface TableInfo {
   createTime: string;
   rated: boolean;
   passworded: boolean;
+  seatsInfo: string;
 }
 
 export interface GetUsersRequest {}
@@ -91,6 +92,15 @@ export interface StartMatchRequest {
 }
 
 export interface StartMatchResponse {
+  success: boolean;
+}
+
+/** Leave table */
+export interface LeaveTableRequest {
+  tableId: string;
+}
+
+export interface LeaveTableResponse {
   success: boolean;
 }
 
@@ -254,6 +264,7 @@ function createBaseTableInfo(): TableInfo {
     createTime: '',
     rated: false,
     passworded: false,
+    seatsInfo: '',
   };
 }
 
@@ -288,6 +299,9 @@ export const TableInfo: MessageFns<TableInfo> = {
     }
     if (message.passworded !== false) {
       writer.uint32(80).bool(message.passworded);
+    }
+    if (message.seatsInfo !== '') {
+      writer.uint32(90).string(message.seatsInfo);
     }
     return writer;
   },
@@ -379,6 +393,14 @@ export const TableInfo: MessageFns<TableInfo> = {
           message.passworded = reader.bool();
           continue;
         }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.seatsInfo = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -432,6 +454,11 @@ export const TableInfo: MessageFns<TableInfo> = {
           : '',
       rated: isSet(object.rated) ? globalThis.Boolean(object.rated) : false,
       passworded: isSet(object.passworded) ? globalThis.Boolean(object.passworded) : false,
+      seatsInfo: isSet(object.seatsInfo)
+        ? globalThis.String(object.seatsInfo)
+        : isSet(object.seats_info)
+          ? globalThis.String(object.seats_info)
+          : '',
     };
   },
 
@@ -467,6 +494,9 @@ export const TableInfo: MessageFns<TableInfo> = {
     if (message.passworded !== false) {
       obj.passworded = message.passworded;
     }
+    if (message.seatsInfo !== '') {
+      obj.seatsInfo = message.seatsInfo;
+    }
     return obj;
   },
 
@@ -485,6 +515,7 @@ export const TableInfo: MessageFns<TableInfo> = {
     message.createTime = object.createTime ?? '';
     message.rated = object.rated ?? false;
     message.passworded = object.passworded ?? false;
+    message.seatsInfo = object.seatsInfo ?? '';
     return message;
   },
 };
@@ -1313,6 +1344,128 @@ export const StartMatchResponse: MessageFns<StartMatchResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<StartMatchResponse>, I>>(object: I): StartMatchResponse {
     const message = createBaseStartMatchResponse();
+    message.success = object.success ?? false;
+    return message;
+  },
+};
+
+function createBaseLeaveTableRequest(): LeaveTableRequest {
+  return { tableId: '' };
+}
+
+export const LeaveTableRequest: MessageFns<LeaveTableRequest> = {
+  encode(message: LeaveTableRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tableId !== '') {
+      writer.uint32(10).string(message.tableId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LeaveTableRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLeaveTableRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.tableId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): LeaveTableRequest {
+    return {
+      tableId: isSet(object.tableId)
+        ? globalThis.String(object.tableId)
+        : isSet(object.table_id)
+          ? globalThis.String(object.table_id)
+          : '',
+    };
+  },
+
+  toJSON(message: LeaveTableRequest): unknown {
+    const obj: any = {};
+    if (message.tableId !== '') {
+      obj.tableId = message.tableId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<LeaveTableRequest>, I>>(base?: I): LeaveTableRequest {
+    return LeaveTableRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<LeaveTableRequest>, I>>(object: I): LeaveTableRequest {
+    const message = createBaseLeaveTableRequest();
+    message.tableId = object.tableId ?? '';
+    return message;
+  },
+};
+
+function createBaseLeaveTableResponse(): LeaveTableResponse {
+  return { success: false };
+}
+
+export const LeaveTableResponse: MessageFns<LeaveTableResponse> = {
+  encode(message: LeaveTableResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LeaveTableResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLeaveTableResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): LeaveTableResponse {
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+  },
+
+  toJSON(message: LeaveTableResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<LeaveTableResponse>, I>>(base?: I): LeaveTableResponse {
+    return LeaveTableResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<LeaveTableResponse>, I>>(object: I): LeaveTableResponse {
+    const message = createBaseLeaveTableResponse();
     message.success = object.success ?? false;
     return message;
   },
