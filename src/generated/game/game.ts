@@ -11,6 +11,10 @@ import {
   cardTypeFromJSON,
   cardTypeToJSON,
   cardTypeToNumber,
+  PlayerAction,
+  playerActionFromJSON,
+  playerActionToJSON,
+  playerActionToNumber,
   QueryType,
   queryTypeFromJSON,
   queryTypeToJSON,
@@ -27,9 +31,12 @@ import {
 
 export const protobufPackage = 'xmage.game';
 
-/** Callback: START_GAME */
+/**
+ * Callback: START_GAME
+ * GSON serializes from TableClientMessage which has currentTableId, gameId, playerId
+ */
 export interface StartGameEvent {
-  tableId: string;
+  currentTableId: string;
   gameId: string;
   playerId: string;
 }
@@ -50,23 +57,41 @@ export interface GameTargetEvent {
   max: number;
   options: TargetOptions | undefined;
   cards: CardsView | undefined;
+  /** GSON serializes this as a flat map { uuid: CardView }, not wrapped in CardsView */
+  cardsView1: { [key: string]: CardView };
+}
+
+export interface GameTargetEvent_CardsView1Entry {
+  key: string;
+  value: CardView | undefined;
 }
 
 export interface TargetOptions {
   chosenTargets: string[];
   queryType: QueryType;
+  possibleTargets: string[];
 }
 
-/** Callback: GAME_ASK */
+/**
+ * Callback: GAME_ASK
+ * GSON sends options as a flat map with keys like "UI.right.btn.text"
+ */
 export interface GameAskEvent {
   gameView: GameView | undefined;
   message: string;
+  options: { [key: string]: string };
+}
+
+export interface GameAskEvent_OptionsEntry {
+  key: string;
+  value: string;
 }
 
 /** Callback: GAME_SELECT */
 export interface GameSelectEvent {
   gameView: GameView | undefined;
   message: string;
+  options: TargetOptions | undefined;
 }
 
 /** Callback: GAME_CHOOSE_ABILITY */
@@ -93,6 +118,7 @@ export interface GameChooseChoiceEvent {
 export interface GamePlayManaEvent {
   gameView: GameView | undefined;
   message: string;
+  options: TargetOptions | undefined;
 }
 
 /** Callback: GAME_UPDATE_AND_INFORM */
@@ -104,6 +130,17 @@ export interface GameUpdateAndInformEvent {
 /** Callback: GAME_OVER */
 export interface GameOverEvent {
   message: string;
+}
+
+/** Callback: END_GAME_INFO */
+export interface EndGameInfoEvent {
+  won: boolean;
+  gameInfo: string;
+  matchInfo: string;
+  additionalInfo: string;
+  wins: number;
+  loses: number;
+  winsNeeded: number;
 }
 
 /** Client -> Server: game actions */
@@ -125,6 +162,11 @@ export interface SendPlayerIntegerRequest {
 export interface SendPlayerStringRequest {
   gameId: string;
   data: string;
+}
+
+export interface SendPlayerActionRequest {
+  gameId: string;
+  action: PlayerAction;
 }
 
 export interface SendPlayerActionResponse {
@@ -230,13 +272,13 @@ export interface CardView {
 }
 
 function createBaseStartGameEvent(): StartGameEvent {
-  return { tableId: '', gameId: '', playerId: '' };
+  return { currentTableId: '', gameId: '', playerId: '' };
 }
 
 export const StartGameEvent: MessageFns<StartGameEvent> = {
   encode(message: StartGameEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.tableId !== '') {
-      writer.uint32(10).string(message.tableId);
+    if (message.currentTableId !== '') {
+      writer.uint32(10).string(message.currentTableId);
     }
     if (message.gameId !== '') {
       writer.uint32(18).string(message.gameId);
@@ -259,7 +301,7 @@ export const StartGameEvent: MessageFns<StartGameEvent> = {
             break;
           }
 
-          message.tableId = reader.string();
+          message.currentTableId = reader.string();
           continue;
         }
         case 2: {
@@ -289,10 +331,10 @@ export const StartGameEvent: MessageFns<StartGameEvent> = {
 
   fromJSON(object: any): StartGameEvent {
     return {
-      tableId: isSet(object.tableId)
-        ? globalThis.String(object.tableId)
-        : isSet(object.table_id)
-          ? globalThis.String(object.table_id)
+      currentTableId: isSet(object.currentTableId)
+        ? globalThis.String(object.currentTableId)
+        : isSet(object.current_table_id)
+          ? globalThis.String(object.current_table_id)
           : '',
       gameId: isSet(object.gameId)
         ? globalThis.String(object.gameId)
@@ -309,8 +351,8 @@ export const StartGameEvent: MessageFns<StartGameEvent> = {
 
   toJSON(message: StartGameEvent): unknown {
     const obj: any = {};
-    if (message.tableId !== '') {
-      obj.tableId = message.tableId;
+    if (message.currentTableId !== '') {
+      obj.currentTableId = message.currentTableId;
     }
     if (message.gameId !== '') {
       obj.gameId = message.gameId;
@@ -326,7 +368,7 @@ export const StartGameEvent: MessageFns<StartGameEvent> = {
   },
   fromPartial<I extends Exact<DeepPartial<StartGameEvent>, I>>(object: I): StartGameEvent {
     const message = createBaseStartGameEvent();
-    message.tableId = object.tableId ?? '';
+    message.currentTableId = object.currentTableId ?? '';
     message.gameId = object.gameId ?? '';
     message.playerId = object.playerId ?? '';
     return message;
@@ -426,6 +468,7 @@ function createBaseGameTargetEvent(): GameTargetEvent {
     max: 0,
     options: undefined,
     cards: undefined,
+    cardsView1: {},
   };
 }
 
@@ -455,6 +498,12 @@ export const GameTargetEvent: MessageFns<GameTargetEvent> = {
     if (message.cards !== undefined) {
       CardsView.encode(message.cards, writer.uint32(66).fork()).join();
     }
+    globalThis.Object.entries(message.cardsView1).forEach(([key, value]: [string, CardView]) => {
+      GameTargetEvent_CardsView1Entry.encode(
+        { key: key as any, value },
+        writer.uint32(74).fork(),
+      ).join();
+    });
     return writer;
   },
 
@@ -529,6 +578,17 @@ export const GameTargetEvent: MessageFns<GameTargetEvent> = {
           message.cards = CardsView.decode(reader, reader.uint32());
           continue;
         }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          const entry9 = GameTargetEvent_CardsView1Entry.decode(reader, reader.uint32());
+          if (entry9.value !== undefined) {
+            message.cardsView1[entry9.key] = entry9.value;
+          }
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -554,6 +614,23 @@ export const GameTargetEvent: MessageFns<GameTargetEvent> = {
       max: isSet(object.max) ? globalThis.Number(object.max) : 0,
       options: isSet(object.options) ? TargetOptions.fromJSON(object.options) : undefined,
       cards: isSet(object.cards) ? CardsView.fromJSON(object.cards) : undefined,
+      cardsView1: isObject(object.cardsView1)
+        ? (globalThis.Object.entries(object.cardsView1) as [string, any][]).reduce(
+            (acc: { [key: string]: CardView }, [key, value]: [string, any]) => {
+              acc[key] = CardView.fromJSON(value);
+              return acc;
+            },
+            {},
+          )
+        : isObject(object.cards_view1)
+          ? (globalThis.Object.entries(object.cards_view1) as [string, any][]).reduce(
+              (acc: { [key: string]: CardView }, [key, value]: [string, any]) => {
+                acc[key] = CardView.fromJSON(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
     };
   },
 
@@ -583,6 +660,15 @@ export const GameTargetEvent: MessageFns<GameTargetEvent> = {
     if (message.cards !== undefined) {
       obj.cards = CardsView.toJSON(message.cards);
     }
+    if (message.cardsView1) {
+      const entries = globalThis.Object.entries(message.cardsView1) as [string, CardView][];
+      if (entries.length > 0) {
+        obj.cardsView1 = {};
+        entries.forEach(([k, v]) => {
+          obj.cardsView1[k] = CardView.toJSON(v);
+        });
+      }
+    }
     return obj;
   },
 
@@ -608,12 +694,106 @@ export const GameTargetEvent: MessageFns<GameTargetEvent> = {
       object.cards !== undefined && object.cards !== null
         ? CardsView.fromPartial(object.cards)
         : undefined;
+    message.cardsView1 = (
+      globalThis.Object.entries(object.cardsView1 ?? {}) as [string, CardView][]
+    ).reduce((acc: { [key: string]: CardView }, [key, value]: [string, CardView]) => {
+      if (value !== undefined) {
+        acc[key] = CardView.fromPartial(value);
+      }
+      return acc;
+    }, {});
+    return message;
+  },
+};
+
+function createBaseGameTargetEvent_CardsView1Entry(): GameTargetEvent_CardsView1Entry {
+  return { key: '', value: undefined };
+}
+
+export const GameTargetEvent_CardsView1Entry: MessageFns<GameTargetEvent_CardsView1Entry> = {
+  encode(
+    message: GameTargetEvent_CardsView1Entry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      CardView.encode(message.value, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GameTargetEvent_CardsView1Entry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGameTargetEvent_CardsView1Entry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = CardView.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GameTargetEvent_CardsView1Entry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      value: isSet(object.value) ? CardView.fromJSON(object.value) : undefined,
+    };
+  },
+
+  toJSON(message: GameTargetEvent_CardsView1Entry): unknown {
+    const obj: any = {};
+    if (message.key !== '') {
+      obj.key = message.key;
+    }
+    if (message.value !== undefined) {
+      obj.value = CardView.toJSON(message.value);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GameTargetEvent_CardsView1Entry>, I>>(
+    base?: I,
+  ): GameTargetEvent_CardsView1Entry {
+    return GameTargetEvent_CardsView1Entry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GameTargetEvent_CardsView1Entry>, I>>(
+    object: I,
+  ): GameTargetEvent_CardsView1Entry {
+    const message = createBaseGameTargetEvent_CardsView1Entry();
+    message.key = object.key ?? '';
+    message.value =
+      object.value !== undefined && object.value !== null
+        ? CardView.fromPartial(object.value)
+        : undefined;
     return message;
   },
 };
 
 function createBaseTargetOptions(): TargetOptions {
-  return { chosenTargets: [], queryType: QueryType.QUERY_ASK };
+  return { chosenTargets: [], queryType: QueryType.QUERY_ASK, possibleTargets: [] };
 }
 
 export const TargetOptions: MessageFns<TargetOptions> = {
@@ -623,6 +803,9 @@ export const TargetOptions: MessageFns<TargetOptions> = {
     }
     if (message.queryType !== QueryType.QUERY_ASK) {
       writer.uint32(16).int32(queryTypeToNumber(message.queryType));
+    }
+    for (const v of message.possibleTargets) {
+      writer.uint32(26).string(v!);
     }
     return writer;
   },
@@ -650,6 +833,14 @@ export const TargetOptions: MessageFns<TargetOptions> = {
           message.queryType = queryTypeFromJSON(reader.int32());
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.possibleTargets.push(reader.string());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -671,6 +862,11 @@ export const TargetOptions: MessageFns<TargetOptions> = {
         : isSet(object.query_type)
           ? queryTypeFromJSON(object.query_type)
           : QueryType.QUERY_ASK,
+      possibleTargets: globalThis.Array.isArray(object?.possibleTargets)
+        ? object.possibleTargets.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.possible_targets)
+          ? object.possible_targets.map((e: any) => globalThis.String(e))
+          : [],
     };
   },
 
@@ -682,6 +878,9 @@ export const TargetOptions: MessageFns<TargetOptions> = {
     if (message.queryType !== QueryType.QUERY_ASK) {
       obj.queryType = queryTypeToJSON(message.queryType);
     }
+    if (message.possibleTargets?.length) {
+      obj.possibleTargets = message.possibleTargets;
+    }
     return obj;
   },
 
@@ -692,12 +891,13 @@ export const TargetOptions: MessageFns<TargetOptions> = {
     const message = createBaseTargetOptions();
     message.chosenTargets = object.chosenTargets?.map((e) => e) || [];
     message.queryType = object.queryType ?? QueryType.QUERY_ASK;
+    message.possibleTargets = object.possibleTargets?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseGameAskEvent(): GameAskEvent {
-  return { gameView: undefined, message: '' };
+  return { gameView: undefined, message: '', options: {} };
 }
 
 export const GameAskEvent: MessageFns<GameAskEvent> = {
@@ -708,6 +908,9 @@ export const GameAskEvent: MessageFns<GameAskEvent> = {
     if (message.message !== '') {
       writer.uint32(18).string(message.message);
     }
+    globalThis.Object.entries(message.options).forEach(([key, value]: [string, string]) => {
+      GameAskEvent_OptionsEntry.encode({ key: key as any, value }, writer.uint32(26).fork()).join();
+    });
     return writer;
   },
 
@@ -734,6 +937,17 @@ export const GameAskEvent: MessageFns<GameAskEvent> = {
           message.message = reader.string();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          const entry3 = GameAskEvent_OptionsEntry.decode(reader, reader.uint32());
+          if (entry3.value !== undefined) {
+            message.options[entry3.key] = entry3.value;
+          }
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -751,6 +965,15 @@ export const GameAskEvent: MessageFns<GameAskEvent> = {
           ? GameView.fromJSON(object.game_view)
           : undefined,
       message: isSet(object.message) ? globalThis.String(object.message) : '',
+      options: isObject(object.options)
+        ? (globalThis.Object.entries(object.options) as [string, any][]).reduce(
+            (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.String(value);
+              return acc;
+            },
+            {},
+          )
+        : {},
     };
   },
 
@@ -761,6 +984,15 @@ export const GameAskEvent: MessageFns<GameAskEvent> = {
     }
     if (message.message !== '') {
       obj.message = message.message;
+    }
+    if (message.options) {
+      const entries = globalThis.Object.entries(message.options) as [string, string][];
+      if (entries.length > 0) {
+        obj.options = {};
+        entries.forEach(([k, v]) => {
+          obj.options[k] = v;
+        });
+      }
     }
     return obj;
   },
@@ -775,12 +1007,103 @@ export const GameAskEvent: MessageFns<GameAskEvent> = {
         ? GameView.fromPartial(object.gameView)
         : undefined;
     message.message = object.message ?? '';
+    message.options = (
+      globalThis.Object.entries(object.options ?? {}) as [string, string][]
+    ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
+    return message;
+  },
+};
+
+function createBaseGameAskEvent_OptionsEntry(): GameAskEvent_OptionsEntry {
+  return { key: '', value: '' };
+}
+
+export const GameAskEvent_OptionsEntry: MessageFns<GameAskEvent_OptionsEntry> = {
+  encode(
+    message: GameAskEvent_OptionsEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== '') {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GameAskEvent_OptionsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGameAskEvent_OptionsEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GameAskEvent_OptionsEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      value: isSet(object.value) ? globalThis.String(object.value) : '',
+    };
+  },
+
+  toJSON(message: GameAskEvent_OptionsEntry): unknown {
+    const obj: any = {};
+    if (message.key !== '') {
+      obj.key = message.key;
+    }
+    if (message.value !== '') {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GameAskEvent_OptionsEntry>, I>>(
+    base?: I,
+  ): GameAskEvent_OptionsEntry {
+    return GameAskEvent_OptionsEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GameAskEvent_OptionsEntry>, I>>(
+    object: I,
+  ): GameAskEvent_OptionsEntry {
+    const message = createBaseGameAskEvent_OptionsEntry();
+    message.key = object.key ?? '';
+    message.value = object.value ?? '';
     return message;
   },
 };
 
 function createBaseGameSelectEvent(): GameSelectEvent {
-  return { gameView: undefined, message: '' };
+  return { gameView: undefined, message: '', options: undefined };
 }
 
 export const GameSelectEvent: MessageFns<GameSelectEvent> = {
@@ -790,6 +1113,9 @@ export const GameSelectEvent: MessageFns<GameSelectEvent> = {
     }
     if (message.message !== '') {
       writer.uint32(18).string(message.message);
+    }
+    if (message.options !== undefined) {
+      TargetOptions.encode(message.options, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -817,6 +1143,14 @@ export const GameSelectEvent: MessageFns<GameSelectEvent> = {
           message.message = reader.string();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.options = TargetOptions.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -834,6 +1168,7 @@ export const GameSelectEvent: MessageFns<GameSelectEvent> = {
           ? GameView.fromJSON(object.game_view)
           : undefined,
       message: isSet(object.message) ? globalThis.String(object.message) : '',
+      options: isSet(object.options) ? TargetOptions.fromJSON(object.options) : undefined,
     };
   },
 
@@ -844,6 +1179,9 @@ export const GameSelectEvent: MessageFns<GameSelectEvent> = {
     }
     if (message.message !== '') {
       obj.message = message.message;
+    }
+    if (message.options !== undefined) {
+      obj.options = TargetOptions.toJSON(message.options);
     }
     return obj;
   },
@@ -858,6 +1196,10 @@ export const GameSelectEvent: MessageFns<GameSelectEvent> = {
         ? GameView.fromPartial(object.gameView)
         : undefined;
     message.message = object.message ?? '';
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? TargetOptions.fromPartial(object.options)
+        : undefined;
     return message;
   },
 };
@@ -1163,7 +1505,7 @@ export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
 };
 
 function createBaseGamePlayManaEvent(): GamePlayManaEvent {
-  return { gameView: undefined, message: '' };
+  return { gameView: undefined, message: '', options: undefined };
 }
 
 export const GamePlayManaEvent: MessageFns<GamePlayManaEvent> = {
@@ -1173,6 +1515,9 @@ export const GamePlayManaEvent: MessageFns<GamePlayManaEvent> = {
     }
     if (message.message !== '') {
       writer.uint32(18).string(message.message);
+    }
+    if (message.options !== undefined) {
+      TargetOptions.encode(message.options, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -1200,6 +1545,14 @@ export const GamePlayManaEvent: MessageFns<GamePlayManaEvent> = {
           message.message = reader.string();
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.options = TargetOptions.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1217,6 +1570,7 @@ export const GamePlayManaEvent: MessageFns<GamePlayManaEvent> = {
           ? GameView.fromJSON(object.game_view)
           : undefined,
       message: isSet(object.message) ? globalThis.String(object.message) : '',
+      options: isSet(object.options) ? TargetOptions.fromJSON(object.options) : undefined,
     };
   },
 
@@ -1227,6 +1581,9 @@ export const GamePlayManaEvent: MessageFns<GamePlayManaEvent> = {
     }
     if (message.message !== '') {
       obj.message = message.message;
+    }
+    if (message.options !== undefined) {
+      obj.options = TargetOptions.toJSON(message.options);
     }
     return obj;
   },
@@ -1241,6 +1598,10 @@ export const GamePlayManaEvent: MessageFns<GamePlayManaEvent> = {
         ? GameView.fromPartial(object.gameView)
         : undefined;
     message.message = object.message ?? '';
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? TargetOptions.fromPartial(object.options)
+        : undefined;
     return message;
   },
 };
@@ -1389,6 +1750,186 @@ export const GameOverEvent: MessageFns<GameOverEvent> = {
   fromPartial<I extends Exact<DeepPartial<GameOverEvent>, I>>(object: I): GameOverEvent {
     const message = createBaseGameOverEvent();
     message.message = object.message ?? '';
+    return message;
+  },
+};
+
+function createBaseEndGameInfoEvent(): EndGameInfoEvent {
+  return {
+    won: false,
+    gameInfo: '',
+    matchInfo: '',
+    additionalInfo: '',
+    wins: 0,
+    loses: 0,
+    winsNeeded: 0,
+  };
+}
+
+export const EndGameInfoEvent: MessageFns<EndGameInfoEvent> = {
+  encode(message: EndGameInfoEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.won !== false) {
+      writer.uint32(8).bool(message.won);
+    }
+    if (message.gameInfo !== '') {
+      writer.uint32(18).string(message.gameInfo);
+    }
+    if (message.matchInfo !== '') {
+      writer.uint32(26).string(message.matchInfo);
+    }
+    if (message.additionalInfo !== '') {
+      writer.uint32(34).string(message.additionalInfo);
+    }
+    if (message.wins !== 0) {
+      writer.uint32(40).int32(message.wins);
+    }
+    if (message.loses !== 0) {
+      writer.uint32(48).int32(message.loses);
+    }
+    if (message.winsNeeded !== 0) {
+      writer.uint32(56).int32(message.winsNeeded);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EndGameInfoEvent {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEndGameInfoEvent();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.won = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.gameInfo = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.matchInfo = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.additionalInfo = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.wins = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.loses = reader.int32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.winsNeeded = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EndGameInfoEvent {
+    return {
+      won: isSet(object.won) ? globalThis.Boolean(object.won) : false,
+      gameInfo: isSet(object.gameInfo)
+        ? globalThis.String(object.gameInfo)
+        : isSet(object.game_info)
+          ? globalThis.String(object.game_info)
+          : '',
+      matchInfo: isSet(object.matchInfo)
+        ? globalThis.String(object.matchInfo)
+        : isSet(object.match_info)
+          ? globalThis.String(object.match_info)
+          : '',
+      additionalInfo: isSet(object.additionalInfo)
+        ? globalThis.String(object.additionalInfo)
+        : isSet(object.additional_info)
+          ? globalThis.String(object.additional_info)
+          : '',
+      wins: isSet(object.wins) ? globalThis.Number(object.wins) : 0,
+      loses: isSet(object.loses) ? globalThis.Number(object.loses) : 0,
+      winsNeeded: isSet(object.winsNeeded)
+        ? globalThis.Number(object.winsNeeded)
+        : isSet(object.wins_needed)
+          ? globalThis.Number(object.wins_needed)
+          : 0,
+    };
+  },
+
+  toJSON(message: EndGameInfoEvent): unknown {
+    const obj: any = {};
+    if (message.won !== false) {
+      obj.won = message.won;
+    }
+    if (message.gameInfo !== '') {
+      obj.gameInfo = message.gameInfo;
+    }
+    if (message.matchInfo !== '') {
+      obj.matchInfo = message.matchInfo;
+    }
+    if (message.additionalInfo !== '') {
+      obj.additionalInfo = message.additionalInfo;
+    }
+    if (message.wins !== 0) {
+      obj.wins = Math.round(message.wins);
+    }
+    if (message.loses !== 0) {
+      obj.loses = Math.round(message.loses);
+    }
+    if (message.winsNeeded !== 0) {
+      obj.winsNeeded = Math.round(message.winsNeeded);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EndGameInfoEvent>, I>>(base?: I): EndGameInfoEvent {
+    return EndGameInfoEvent.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EndGameInfoEvent>, I>>(object: I): EndGameInfoEvent {
+    const message = createBaseEndGameInfoEvent();
+    message.won = object.won ?? false;
+    message.gameInfo = object.gameInfo ?? '';
+    message.matchInfo = object.matchInfo ?? '';
+    message.additionalInfo = object.additionalInfo ?? '';
+    message.wins = object.wins ?? 0;
+    message.loses = object.loses ?? 0;
+    message.winsNeeded = object.winsNeeded ?? 0;
     return message;
   },
 };
@@ -1732,6 +2273,95 @@ export const SendPlayerStringRequest: MessageFns<SendPlayerStringRequest> = {
     const message = createBaseSendPlayerStringRequest();
     message.gameId = object.gameId ?? '';
     message.data = object.data ?? '';
+    return message;
+  },
+};
+
+function createBaseSendPlayerActionRequest(): SendPlayerActionRequest {
+  return { gameId: '', action: PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN };
+}
+
+export const SendPlayerActionRequest: MessageFns<SendPlayerActionRequest> = {
+  encode(
+    message: SendPlayerActionRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.gameId !== '') {
+      writer.uint32(10).string(message.gameId);
+    }
+    if (message.action !== PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN) {
+      writer.uint32(16).int32(playerActionToNumber(message.action));
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SendPlayerActionRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSendPlayerActionRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.gameId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.action = playerActionFromJSON(reader.int32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SendPlayerActionRequest {
+    return {
+      gameId: isSet(object.gameId)
+        ? globalThis.String(object.gameId)
+        : isSet(object.game_id)
+          ? globalThis.String(object.game_id)
+          : '',
+      action: isSet(object.action)
+        ? playerActionFromJSON(object.action)
+        : PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN,
+    };
+  },
+
+  toJSON(message: SendPlayerActionRequest): unknown {
+    const obj: any = {};
+    if (message.gameId !== '') {
+      obj.gameId = message.gameId;
+    }
+    if (message.action !== PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN) {
+      obj.action = playerActionToJSON(message.action);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SendPlayerActionRequest>, I>>(
+    base?: I,
+  ): SendPlayerActionRequest {
+    return SendPlayerActionRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SendPlayerActionRequest>, I>>(
+    object: I,
+  ): SendPlayerActionRequest {
+    const message = createBaseSendPlayerActionRequest();
+    message.gameId = object.gameId ?? '';
+    message.action = object.action ?? PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN;
     return message;
   },
 };

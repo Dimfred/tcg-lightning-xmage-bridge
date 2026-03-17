@@ -1,13 +1,14 @@
 import { createLogger } from './logger';
-import type { XmageMessage } from './types';
+import type { DisconnectInfo, ServerError, ServerMessage, XmageMessage } from './types';
 
-type EventHandler = (data: unknown) => void;
+export type EventHandler = (data: unknown) => void;
 
 export class BaseClient {
   private readonly logger = createLogger('BaseClient');
   private ws: WebSocket | null = null;
   private readonly url: string;
   private readonly handlers = new Map<string, EventHandler[]>();
+  private readonly namedHandlers = new Map<string, EventHandler>();
 
   constructor(url: string) {
     this.url = url;
@@ -83,12 +84,70 @@ export class BaseClient {
     });
   }
 
+  // -- Typed client-level subscriptions --
+  // Call with handler to subscribe, call without to unsubscribe
+
+  onDisconnected(handler?: (info: DisconnectInfo) => void): void {
+    this.toggleHandler('ws.disconnected', handler);
+  }
+
+  onError(handler?: (event: unknown) => void): void {
+    this.toggleHandler('ws.error', handler);
+  }
+
+  onServerError(handler?: (error: ServerError) => void): void {
+    this.toggleHandler('server.error', handler);
+  }
+
+  onServerMessage(handler?: (msg: ServerMessage) => void): void {
+    this.toggleHandler('server.message', handler);
+  }
+
+  onAny(handler?: (event: string, data: unknown) => void): void {
+    if (handler) {
+      const wrapped: EventHandler = (data) => {
+        const { event, data: eventData } = data as { event: string; data: unknown };
+        handler(event, eventData);
+      };
+      this.namedHandlers.set('*', wrapped);
+      this.on('*', wrapped);
+      return;
+    }
+
+    const existing = this.namedHandlers.get('*');
+    if (existing) {
+      this.off('*', existing);
+      this.namedHandlers.delete('*');
+    }
+  }
+
+  // -- Internal helpers --
+
+  /** @internal */
+  // biome-ignore lint: handler accepts any function signature
+  toggleHandler(event: string, handler?: (...args: any[]) => void): void {
+    if (handler) {
+      const wrapped: EventHandler = (data) => handler(data as never);
+      this.namedHandlers.set(event, wrapped);
+      this.on(event, wrapped);
+      return;
+    }
+
+    const existing = this.namedHandlers.get(event);
+    if (existing) {
+      this.off(event, existing);
+      this.namedHandlers.delete(event);
+    }
+  }
+
+  /** @internal */
   on(event: string, handler: EventHandler): void {
     const existing = this.handlers.get(event) ?? [];
     existing.push(handler);
     this.handlers.set(event, existing);
   }
 
+  /** @internal */
   off(event: string, handler: EventHandler): void {
     const existing = this.handlers.get(event);
     if (!existing) return;

@@ -906,6 +906,132 @@ export function queryTypeToNumber(object: QueryType): number {
   }
 }
 
+/** Player actions — mirrors mage.constants.PlayerAction (subset relevant for websocket client) */
+export enum PlayerAction {
+  PASS_PRIORITY_UNTIL_NEXT_TURN = 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_NEXT_TURN',
+  PASS_PRIORITY_UNTIL_TURN_END_STEP = 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_TURN_END_STEP',
+  PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE = 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE',
+  PASS_PRIORITY_UNTIL_MY_NEXT_TURN = 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_MY_NEXT_TURN',
+  PASS_PRIORITY_UNTIL_STACK_RESOLVED = 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_STACK_RESOLVED',
+  PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN = 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN',
+  PASS_PRIORITY_CANCEL_ALL_ACTIONS = 'PLAYER_ACTION_PASS_PRIORITY_CANCEL_ALL_ACTIONS',
+  CONCEDE = 'PLAYER_ACTION_CONCEDE',
+  UNDO = 'PLAYER_ACTION_UNDO',
+  ROLLBACK_TURNS = 'PLAYER_ACTION_ROLLBACK_TURNS',
+  HOLD_PRIORITY = 'PLAYER_ACTION_HOLD_PRIORITY',
+  UNHOLD_PRIORITY = 'PLAYER_ACTION_UNHOLD_PRIORITY',
+  UNRECOGNIZED = 'UNRECOGNIZED',
+}
+
+export function playerActionFromJSON(object: any): PlayerAction {
+  switch (object) {
+    case 0:
+    case 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_NEXT_TURN':
+      return PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN;
+    case 1:
+    case 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_TURN_END_STEP':
+      return PlayerAction.PASS_PRIORITY_UNTIL_TURN_END_STEP;
+    case 2:
+    case 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE':
+      return PlayerAction.PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE;
+    case 3:
+    case 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_MY_NEXT_TURN':
+      return PlayerAction.PASS_PRIORITY_UNTIL_MY_NEXT_TURN;
+    case 4:
+    case 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_STACK_RESOLVED':
+      return PlayerAction.PASS_PRIORITY_UNTIL_STACK_RESOLVED;
+    case 5:
+    case 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN':
+      return PlayerAction.PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN;
+    case 6:
+    case 'PLAYER_ACTION_PASS_PRIORITY_CANCEL_ALL_ACTIONS':
+      return PlayerAction.PASS_PRIORITY_CANCEL_ALL_ACTIONS;
+    case 7:
+    case 'PLAYER_ACTION_CONCEDE':
+      return PlayerAction.CONCEDE;
+    case 8:
+    case 'PLAYER_ACTION_UNDO':
+      return PlayerAction.UNDO;
+    case 9:
+    case 'PLAYER_ACTION_ROLLBACK_TURNS':
+      return PlayerAction.ROLLBACK_TURNS;
+    case 10:
+    case 'PLAYER_ACTION_HOLD_PRIORITY':
+      return PlayerAction.HOLD_PRIORITY;
+    case 11:
+    case 'PLAYER_ACTION_UNHOLD_PRIORITY':
+      return PlayerAction.UNHOLD_PRIORITY;
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return PlayerAction.UNRECOGNIZED;
+  }
+}
+
+export function playerActionToJSON(object: PlayerAction): string {
+  switch (object) {
+    case PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN:
+      return 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_NEXT_TURN';
+    case PlayerAction.PASS_PRIORITY_UNTIL_TURN_END_STEP:
+      return 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_TURN_END_STEP';
+    case PlayerAction.PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE:
+      return 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE';
+    case PlayerAction.PASS_PRIORITY_UNTIL_MY_NEXT_TURN:
+      return 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_MY_NEXT_TURN';
+    case PlayerAction.PASS_PRIORITY_UNTIL_STACK_RESOLVED:
+      return 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_STACK_RESOLVED';
+    case PlayerAction.PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN:
+      return 'PLAYER_ACTION_PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN';
+    case PlayerAction.PASS_PRIORITY_CANCEL_ALL_ACTIONS:
+      return 'PLAYER_ACTION_PASS_PRIORITY_CANCEL_ALL_ACTIONS';
+    case PlayerAction.CONCEDE:
+      return 'PLAYER_ACTION_CONCEDE';
+    case PlayerAction.UNDO:
+      return 'PLAYER_ACTION_UNDO';
+    case PlayerAction.ROLLBACK_TURNS:
+      return 'PLAYER_ACTION_ROLLBACK_TURNS';
+    case PlayerAction.HOLD_PRIORITY:
+      return 'PLAYER_ACTION_HOLD_PRIORITY';
+    case PlayerAction.UNHOLD_PRIORITY:
+      return 'PLAYER_ACTION_UNHOLD_PRIORITY';
+    case PlayerAction.UNRECOGNIZED:
+    default:
+      return 'UNRECOGNIZED';
+  }
+}
+
+export function playerActionToNumber(object: PlayerAction): number {
+  switch (object) {
+    case PlayerAction.PASS_PRIORITY_UNTIL_NEXT_TURN:
+      return 0;
+    case PlayerAction.PASS_PRIORITY_UNTIL_TURN_END_STEP:
+      return 1;
+    case PlayerAction.PASS_PRIORITY_UNTIL_NEXT_MAIN_PHASE:
+      return 2;
+    case PlayerAction.PASS_PRIORITY_UNTIL_MY_NEXT_TURN:
+      return 3;
+    case PlayerAction.PASS_PRIORITY_UNTIL_STACK_RESOLVED:
+      return 4;
+    case PlayerAction.PASS_PRIORITY_UNTIL_END_STEP_BEFORE_MY_NEXT_TURN:
+      return 5;
+    case PlayerAction.PASS_PRIORITY_CANCEL_ALL_ACTIONS:
+      return 6;
+    case PlayerAction.CONCEDE:
+      return 7;
+    case PlayerAction.UNDO:
+      return 8;
+    case PlayerAction.ROLLBACK_TURNS:
+      return 9;
+    case PlayerAction.HOLD_PRIORITY:
+      return 10;
+    case PlayerAction.UNHOLD_PRIORITY:
+      return 11;
+    case PlayerAction.UNRECOGNIZED:
+    default:
+      return -1;
+  }
+}
+
 export enum TurnPhase {
   BEGINNING = 'TURN_PHASE_BEGINNING',
   PRECOMBAT_MAIN = 'TURN_PHASE_PRECOMBAT_MAIN',

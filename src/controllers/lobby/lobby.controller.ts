@@ -50,13 +50,14 @@ export class LobbyController extends BaseController {
     return this.client.request<LeaveTableResponse>('lobby.leaveTable', options);
   }
 
-  subscribeTables(handler: TablesHandler): void {
-    this.tablesHandler = handler;
-    this.client.on('lobby.tablesUpdate', handler as (data: unknown) => void);
-    this.client.send('lobby.subscribeTables');
-  }
+  onTablesUpdate(handler?: TablesHandler): void {
+    if (handler) {
+      this.tablesHandler = handler;
+      this.client.on('lobby.tablesUpdate', handler as (data: unknown) => void);
+      this.client.send('lobby.subscribeTables');
+      return;
+    }
 
-  unsubscribeTables(): void {
     this.client.send('lobby.unsubscribeTables');
     if (this.tablesHandler) {
       this.client.off('lobby.tablesUpdate', this.tablesHandler as (data: unknown) => void);
