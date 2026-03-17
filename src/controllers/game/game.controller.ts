@@ -1,6 +1,7 @@
 import { BaseController } from '../base-controller';
 import type { BaseClient } from '../../base-client';
 import type {
+  ChatMessageEvent,
   EndGameInfoEvent,
   GameAskEvent,
   GameChooseAbilityEvent,
@@ -9,6 +10,7 @@ import type {
   GamePlayManaEvent,
   GameSelectEvent,
   GameStateEvent,
+  GameView,
   GameTargetEvent,
   GameUpdateAndInformEvent,
   SendPlayerActionResponse,
@@ -26,6 +28,17 @@ type CallbackHandler<T> = (gameId: string, data: T) => void;
 export class GameController extends BaseController {
   constructor(client: BaseClient) {
     super(client);
+
+    // Register a single handler for chat messages, dispatch to specific handlers
+    this.toggleCallback<ChatMessageEvent>('callback.chatmessage', (_gameId, data) => {
+      const expiredMatch = data.message?.match(/^(.+) session expired$/);
+      if (expiredMatch) {
+        this._sessionExpiredHandler?.(_gameId, expiredMatch[1]);
+        return;
+      }
+
+      this._chatMessageHandler?.(_gameId, data);
+    });
   }
 
   get prefix(): string {
@@ -76,7 +89,18 @@ export class GameController extends BaseController {
   }
 
   onGameUpdate(handler?: CallbackHandler<GameStateEvent>): void {
-    this.toggleCallback('callback.game_update', handler);
+    if (!handler) {
+      this.toggleCallback<GameStateEvent>('callback.game_update');
+      return;
+    }
+    // Server sends GameView fields at top level for game_update, not nested in gameView
+    this.toggleCallback<GameStateEvent>('callback.game_update', (gameId, data) => {
+      if (!data.gameView && (data as Record<string, unknown>).players) {
+        handler(gameId, { gameView: data as unknown as GameView, message: '' });
+        return;
+      }
+      handler(gameId, data);
+    });
   }
 
   onGameUpdateAndInform(handler?: CallbackHandler<GameUpdateAndInformEvent>): void {
@@ -115,7 +139,19 @@ export class GameController extends BaseController {
     this.toggleCallback('callback.end_game_info', handler);
   }
 
+  onChatMessage(handler?: CallbackHandler<ChatMessageEvent>): void {
+    this._chatMessageHandler = handler;
+  }
+
+  /** Fires when a player's session expires (filtered from chat messages) */
+  onSessionExpired(handler?: (gameId: string, playerName: string) => void): void {
+    this._sessionExpiredHandler = handler;
+  }
+
   // -- Internal --
+
+  private _chatMessageHandler?: CallbackHandler<ChatMessageEvent>;
+  private _sessionExpiredHandler?: (gameId: string, playerName: string) => void;
 
   private toggleCallback<T>(event: string, handler?: CallbackHandler<T>): void {
     if (handler) {

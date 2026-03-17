@@ -107,11 +107,54 @@ export interface AbilityView {
   source: string;
 }
 
-/** Callback: GAME_CHOOSE_CHOICE */
+/**
+ * Callback: GAME_CHOOSE_CHOICE
+ * GSON serializes GameClientMessage { gameView, choice: ChoiceImpl }
+ */
 export interface GameChooseChoiceEvent {
   gameView: GameView | undefined;
+  choice: Choice | undefined;
+}
+
+/**
+ * XMage ChoiceImpl — supports two modes: key choices (map) and string choices (set)
+ * For key choices: response via sendPlayerString with the key (e.g. "1")
+ * For string choices: response via sendPlayerString with the choice text
+ */
+export interface Choice {
   message: string;
+  subMessage: string;
+  /** String mode: simple set of choice strings */
   choices: string[];
+  /** Key mode: key → display text (e.g. "1" → "Cast with Evoke: {2}{U}") */
+  keyChoices: { [key: string]: string };
+  required: boolean;
+  searchEnabled: boolean;
+  sortData: { [key: string]: number };
+  specialEnabled: boolean;
+  specialText: string;
+  specialHint: string;
+}
+
+export interface Choice_KeyChoicesEntry {
+  key: string;
+  value: string;
+}
+
+export interface Choice_SortDataEntry {
+  key: string;
+  value: number;
+}
+
+/**
+ * Callback: CHATMESSAGE
+ * GSON serializes ChatMessage with time, message, color, messageType
+ */
+export interface ChatMessageEvent {
+  time: string;
+  message: string;
+  color: string;
+  messageType: string;
 }
 
 /** Callback: GAME_PLAY_MANA */
@@ -1402,7 +1445,7 @@ export const AbilityView: MessageFns<AbilityView> = {
 };
 
 function createBaseGameChooseChoiceEvent(): GameChooseChoiceEvent {
-  return { gameView: undefined, message: '', choices: [] };
+  return { gameView: undefined, choice: undefined };
 }
 
 export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
@@ -1410,11 +1453,8 @@ export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
     if (message.gameView !== undefined) {
       GameView.encode(message.gameView, writer.uint32(10).fork()).join();
     }
-    if (message.message !== '') {
-      writer.uint32(18).string(message.message);
-    }
-    for (const v of message.choices) {
-      writer.uint32(26).string(v!);
+    if (message.choice !== undefined) {
+      Choice.encode(message.choice, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -1439,15 +1479,7 @@ export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
             break;
           }
 
-          message.message = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.choices.push(reader.string());
+          message.choice = Choice.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1466,10 +1498,7 @@ export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
         : isSet(object.game_view)
           ? GameView.fromJSON(object.game_view)
           : undefined,
-      message: isSet(object.message) ? globalThis.String(object.message) : '',
-      choices: globalThis.Array.isArray(object?.choices)
-        ? object.choices.map((e: any) => globalThis.String(e))
-        : [],
+      choice: isSet(object.choice) ? Choice.fromJSON(object.choice) : undefined,
     };
   },
 
@@ -1478,11 +1507,8 @@ export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
     if (message.gameView !== undefined) {
       obj.gameView = GameView.toJSON(message.gameView);
     }
-    if (message.message !== '') {
-      obj.message = message.message;
-    }
-    if (message.choices?.length) {
-      obj.choices = message.choices;
+    if (message.choice !== undefined) {
+      obj.choice = Choice.toJSON(message.choice);
     }
     return obj;
   },
@@ -1498,8 +1524,581 @@ export const GameChooseChoiceEvent: MessageFns<GameChooseChoiceEvent> = {
       object.gameView !== undefined && object.gameView !== null
         ? GameView.fromPartial(object.gameView)
         : undefined;
+    message.choice =
+      object.choice !== undefined && object.choice !== null
+        ? Choice.fromPartial(object.choice)
+        : undefined;
+    return message;
+  },
+};
+
+function createBaseChoice(): Choice {
+  return {
+    message: '',
+    subMessage: '',
+    choices: [],
+    keyChoices: {},
+    required: false,
+    searchEnabled: false,
+    sortData: {},
+    specialEnabled: false,
+    specialText: '',
+    specialHint: '',
+  };
+}
+
+export const Choice: MessageFns<Choice> = {
+  encode(message: Choice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.message !== '') {
+      writer.uint32(10).string(message.message);
+    }
+    if (message.subMessage !== '') {
+      writer.uint32(18).string(message.subMessage);
+    }
+    for (const v of message.choices) {
+      writer.uint32(26).string(v!);
+    }
+    globalThis.Object.entries(message.keyChoices).forEach(([key, value]: [string, string]) => {
+      Choice_KeyChoicesEntry.encode({ key: key as any, value }, writer.uint32(34).fork()).join();
+    });
+    if (message.required !== false) {
+      writer.uint32(40).bool(message.required);
+    }
+    if (message.searchEnabled !== false) {
+      writer.uint32(48).bool(message.searchEnabled);
+    }
+    globalThis.Object.entries(message.sortData).forEach(([key, value]: [string, number]) => {
+      Choice_SortDataEntry.encode({ key: key as any, value }, writer.uint32(58).fork()).join();
+    });
+    if (message.specialEnabled !== false) {
+      writer.uint32(64).bool(message.specialEnabled);
+    }
+    if (message.specialText !== '') {
+      writer.uint32(74).string(message.specialText);
+    }
+    if (message.specialHint !== '') {
+      writer.uint32(82).string(message.specialHint);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Choice {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseChoice();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.message = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.subMessage = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.choices.push(reader.string());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          const entry4 = Choice_KeyChoicesEntry.decode(reader, reader.uint32());
+          if (entry4.value !== undefined) {
+            message.keyChoices[entry4.key] = entry4.value;
+          }
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.required = reader.bool();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.searchEnabled = reader.bool();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          const entry7 = Choice_SortDataEntry.decode(reader, reader.uint32());
+          if (entry7.value !== undefined) {
+            message.sortData[entry7.key] = entry7.value;
+          }
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.specialEnabled = reader.bool();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.specialText = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.specialHint = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Choice {
+    return {
+      message: isSet(object.message) ? globalThis.String(object.message) : '',
+      subMessage: isSet(object.subMessage)
+        ? globalThis.String(object.subMessage)
+        : isSet(object.sub_message)
+          ? globalThis.String(object.sub_message)
+          : '',
+      choices: globalThis.Array.isArray(object?.choices)
+        ? object.choices.map((e: any) => globalThis.String(e))
+        : [],
+      keyChoices: isObject(object.keyChoices)
+        ? (globalThis.Object.entries(object.keyChoices) as [string, any][]).reduce(
+            (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.String(value);
+              return acc;
+            },
+            {},
+          )
+        : isObject(object.key_choices)
+          ? (globalThis.Object.entries(object.key_choices) as [string, any][]).reduce(
+              (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.String(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
+      required: isSet(object.required) ? globalThis.Boolean(object.required) : false,
+      searchEnabled: isSet(object.searchEnabled)
+        ? globalThis.Boolean(object.searchEnabled)
+        : isSet(object.search_enabled)
+          ? globalThis.Boolean(object.search_enabled)
+          : false,
+      sortData: isObject(object.sortData)
+        ? (globalThis.Object.entries(object.sortData) as [string, any][]).reduce(
+            (acc: { [key: string]: number }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.Number(value);
+              return acc;
+            },
+            {},
+          )
+        : isObject(object.sort_data)
+          ? (globalThis.Object.entries(object.sort_data) as [string, any][]).reduce(
+              (acc: { [key: string]: number }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.Number(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
+      specialEnabled: isSet(object.specialEnabled)
+        ? globalThis.Boolean(object.specialEnabled)
+        : isSet(object.special_enabled)
+          ? globalThis.Boolean(object.special_enabled)
+          : false,
+      specialText: isSet(object.specialText)
+        ? globalThis.String(object.specialText)
+        : isSet(object.special_text)
+          ? globalThis.String(object.special_text)
+          : '',
+      specialHint: isSet(object.specialHint)
+        ? globalThis.String(object.specialHint)
+        : isSet(object.special_hint)
+          ? globalThis.String(object.special_hint)
+          : '',
+    };
+  },
+
+  toJSON(message: Choice): unknown {
+    const obj: any = {};
+    if (message.message !== '') {
+      obj.message = message.message;
+    }
+    if (message.subMessage !== '') {
+      obj.subMessage = message.subMessage;
+    }
+    if (message.choices?.length) {
+      obj.choices = message.choices;
+    }
+    if (message.keyChoices) {
+      const entries = globalThis.Object.entries(message.keyChoices) as [string, string][];
+      if (entries.length > 0) {
+        obj.keyChoices = {};
+        entries.forEach(([k, v]) => {
+          obj.keyChoices[k] = v;
+        });
+      }
+    }
+    if (message.required !== false) {
+      obj.required = message.required;
+    }
+    if (message.searchEnabled !== false) {
+      obj.searchEnabled = message.searchEnabled;
+    }
+    if (message.sortData) {
+      const entries = globalThis.Object.entries(message.sortData) as [string, number][];
+      if (entries.length > 0) {
+        obj.sortData = {};
+        entries.forEach(([k, v]) => {
+          obj.sortData[k] = Math.round(v);
+        });
+      }
+    }
+    if (message.specialEnabled !== false) {
+      obj.specialEnabled = message.specialEnabled;
+    }
+    if (message.specialText !== '') {
+      obj.specialText = message.specialText;
+    }
+    if (message.specialHint !== '') {
+      obj.specialHint = message.specialHint;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Choice>, I>>(base?: I): Choice {
+    return Choice.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Choice>, I>>(object: I): Choice {
+    const message = createBaseChoice();
     message.message = object.message ?? '';
+    message.subMessage = object.subMessage ?? '';
     message.choices = object.choices?.map((e) => e) || [];
+    message.keyChoices = (
+      globalThis.Object.entries(object.keyChoices ?? {}) as [string, string][]
+    ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
+    message.required = object.required ?? false;
+    message.searchEnabled = object.searchEnabled ?? false;
+    message.sortData = (
+      globalThis.Object.entries(object.sortData ?? {}) as [string, number][]
+    ).reduce((acc: { [key: string]: number }, [key, value]: [string, number]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.Number(value);
+      }
+      return acc;
+    }, {});
+    message.specialEnabled = object.specialEnabled ?? false;
+    message.specialText = object.specialText ?? '';
+    message.specialHint = object.specialHint ?? '';
+    return message;
+  },
+};
+
+function createBaseChoice_KeyChoicesEntry(): Choice_KeyChoicesEntry {
+  return { key: '', value: '' };
+}
+
+export const Choice_KeyChoicesEntry: MessageFns<Choice_KeyChoicesEntry> = {
+  encode(message: Choice_KeyChoicesEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== '') {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Choice_KeyChoicesEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseChoice_KeyChoicesEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Choice_KeyChoicesEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      value: isSet(object.value) ? globalThis.String(object.value) : '',
+    };
+  },
+
+  toJSON(message: Choice_KeyChoicesEntry): unknown {
+    const obj: any = {};
+    if (message.key !== '') {
+      obj.key = message.key;
+    }
+    if (message.value !== '') {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Choice_KeyChoicesEntry>, I>>(
+    base?: I,
+  ): Choice_KeyChoicesEntry {
+    return Choice_KeyChoicesEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Choice_KeyChoicesEntry>, I>>(
+    object: I,
+  ): Choice_KeyChoicesEntry {
+    const message = createBaseChoice_KeyChoicesEntry();
+    message.key = object.key ?? '';
+    message.value = object.value ?? '';
+    return message;
+  },
+};
+
+function createBaseChoice_SortDataEntry(): Choice_SortDataEntry {
+  return { key: '', value: 0 };
+}
+
+export const Choice_SortDataEntry: MessageFns<Choice_SortDataEntry> = {
+  encode(message: Choice_SortDataEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== '') {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== 0) {
+      writer.uint32(16).int32(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Choice_SortDataEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseChoice_SortDataEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.value = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Choice_SortDataEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      value: isSet(object.value) ? globalThis.Number(object.value) : 0,
+    };
+  },
+
+  toJSON(message: Choice_SortDataEntry): unknown {
+    const obj: any = {};
+    if (message.key !== '') {
+      obj.key = message.key;
+    }
+    if (message.value !== 0) {
+      obj.value = Math.round(message.value);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Choice_SortDataEntry>, I>>(base?: I): Choice_SortDataEntry {
+    return Choice_SortDataEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Choice_SortDataEntry>, I>>(
+    object: I,
+  ): Choice_SortDataEntry {
+    const message = createBaseChoice_SortDataEntry();
+    message.key = object.key ?? '';
+    message.value = object.value ?? 0;
+    return message;
+  },
+};
+
+function createBaseChatMessageEvent(): ChatMessageEvent {
+  return { time: '', message: '', color: '', messageType: '' };
+}
+
+export const ChatMessageEvent: MessageFns<ChatMessageEvent> = {
+  encode(message: ChatMessageEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.time !== '') {
+      writer.uint32(10).string(message.time);
+    }
+    if (message.message !== '') {
+      writer.uint32(18).string(message.message);
+    }
+    if (message.color !== '') {
+      writer.uint32(26).string(message.color);
+    }
+    if (message.messageType !== '') {
+      writer.uint32(34).string(message.messageType);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ChatMessageEvent {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseChatMessageEvent();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.time = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.message = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.color = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.messageType = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ChatMessageEvent {
+    return {
+      time: isSet(object.time) ? globalThis.String(object.time) : '',
+      message: isSet(object.message) ? globalThis.String(object.message) : '',
+      color: isSet(object.color) ? globalThis.String(object.color) : '',
+      messageType: isSet(object.messageType)
+        ? globalThis.String(object.messageType)
+        : isSet(object.message_type)
+          ? globalThis.String(object.message_type)
+          : '',
+    };
+  },
+
+  toJSON(message: ChatMessageEvent): unknown {
+    const obj: any = {};
+    if (message.time !== '') {
+      obj.time = message.time;
+    }
+    if (message.message !== '') {
+      obj.message = message.message;
+    }
+    if (message.color !== '') {
+      obj.color = message.color;
+    }
+    if (message.messageType !== '') {
+      obj.messageType = message.messageType;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ChatMessageEvent>, I>>(base?: I): ChatMessageEvent {
+    return ChatMessageEvent.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ChatMessageEvent>, I>>(object: I): ChatMessageEvent {
+    const message = createBaseChatMessageEvent();
+    message.time = object.time ?? '';
+    message.message = object.message ?? '';
+    message.color = object.color ?? '';
+    message.messageType = object.messageType ?? '';
     return message;
   },
 };
